@@ -118,7 +118,7 @@ export default function InvitationsClient() {
           <h1 className="text-3xl font-bold text-black">Invitations</h1>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+            className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
           >
             {showForm ? 'Cancel' : '+ Invite Member'}
           </button>
@@ -169,7 +169,7 @@ export default function InvitationsClient() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                 >
                   Send Invitation
                 </button>
@@ -183,7 +183,7 @@ export default function InvitationsClient() {
             <p className="text-gray-600 mb-4">No invitations sent yet</p>
             <button
               onClick={() => setShowForm(true)}
-              className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+              className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
             >
               Send First Invitation
             </button>
@@ -211,7 +211,7 @@ export default function InvitationsClient() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          invitation.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          invitation.status === 'approved' ? 'dashboard-badge-success' :
                           invitation.status === 'rejected' ? 'bg-red-100 text-red-800' :
                           invitation.status === 'accepted' ? 'bg-blue-100 text-blue-800' :
                           invitation.status === 'expired' ? 'bg-gray-100 text-gray-800' :

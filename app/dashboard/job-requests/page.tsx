@@ -94,7 +94,7 @@ export default function JobRequestsPage() {
           {selectedOrg && (
             <Link
               href="/dashboard/job-requests/new"
-              className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                className="dashboard-btn-primary px-6 py-2 rounded-md font-medium"
             >
               + New Job Request
             </Link>
@@ -113,7 +113,7 @@ export default function JobRequestsPage() {
             {selectedOrg && (
               <Link
                 href="/dashboard/job-requests/new"
-                className="inline-block px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                className="dashboard-btn-primary inline-block px-6 py-2 rounded-md font-medium"
               >
                 Create Job Request
               </Link>
@@ -148,10 +148,10 @@ export default function JobRequestsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          jobRequest.status === 'hired' ? 'bg-green-100 text-green-800' :
-                          jobRequest.status === 'candidates_delivered' ? 'bg-blue-100 text-blue-800' :
-                          jobRequest.status === 'interviews_scheduled' ? 'bg-purple-100 text-purple-800' :
-                          'bg-gray-100 text-gray-800'
+                          jobRequest.status === 'hired' ? 'dashboard-badge-success' :
+                          jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-primary' :
+                          jobRequest.status === 'interviews_scheduled' ? 'dashboard-badge-secondary' :
+                          'dashboard-badge-default'
                         }`}>
                           {jobRequest.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
@@ -165,7 +165,7 @@ export default function JobRequestsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleJobRequestClick(jobRequest.id)}
-                          className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                          className="dashboard-btn-primary px-4 py-2 rounded-md font-medium"
                         >
                           View Details
                         </button>

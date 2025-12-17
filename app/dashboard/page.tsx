@@ -74,10 +74,10 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+      <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-light">Loading...</p>
+          <div className="w-12 h-12 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }}></div>
+          <p className="font-light" style={{ color: 'var(--color-text-secondary)' }}>Loading...</p>
         </div>
       </main>
     );
@@ -94,17 +94,17 @@ export default function DashboardPage() {
   const hired = jobRequests.filter(jr => jr.status === 'hired').length;
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen p-8" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-black mb-2">
+              <h1 className="text-3xl lg:text-4xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 Dashboard
               </h1>
               {selectedOrg && (
-                <p className="text-lg text-gray-600 font-light">
+                <p className="text-lg font-light" style={{ color: 'var(--color-text-secondary)' }}>
                   {selectedOrg.organization_name || selectedOrg.name}
                 </p>
               )}
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             {selectedOrg && (
               <Link
                 href="/dashboard/job-requests/new"
-                className="inline-flex items-center px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors group"
+                className="dashboard-btn-primary inline-flex items-center px-6 py-3 rounded-md font-medium group"
               >
                 New Job Request
                 <svg
@@ -136,8 +136,8 @@ export default function DashboardPage() {
         </div>
 
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mb-8 p-4 rounded-md" style={{ backgroundColor: 'var(--color-error-lightest)', border: '1px solid var(--color-error-lighter)' }}>
+            <p className="text-sm" style={{ color: 'var(--color-error-dark)' }}>{error}</p>
           </div>
         )}
 
@@ -146,38 +146,38 @@ export default function DashboardPage() {
           <>
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-              <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-black transition-colors">
-                <p className="text-sm text-gray-600 mb-3 font-light">Total Jobs</p>
-                <p className="text-5xl font-bold text-black">{jobRequests.length}</p>
+              <div className="dashboard-card rounded-lg p-8">
+                <p className="text-sm mb-3 font-light" style={{ color: 'var(--color-text-secondary)' }}>Total Jobs</p>
+                <p className="text-5xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{jobRequests.length}</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-black transition-colors">
-                <p className="text-sm text-gray-600 mb-3 font-light">Active</p>
-                <p className="text-5xl font-bold text-black">{activeJobs}</p>
+              <div className="dashboard-card rounded-lg p-8">
+                <p className="text-sm mb-3 font-light" style={{ color: 'var(--color-text-secondary)' }}>Active</p>
+                <p className="text-5xl font-bold" style={{ color: 'var(--color-primary)' }}>{activeJobs}</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-black transition-colors">
-                <p className="text-sm text-gray-600 mb-3 font-light">Interviews</p>
-                <p className="text-5xl font-bold text-black">{interviewsScheduled}</p>
+              <div className="dashboard-card rounded-lg p-8">
+                <p className="text-sm mb-3 font-light" style={{ color: 'var(--color-text-secondary)' }}>Interviews</p>
+                <p className="text-5xl font-bold" style={{ color: 'var(--color-secondary)' }}>{interviewsScheduled}</p>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-black transition-colors">
-                <p className="text-sm text-gray-600 mb-3 font-light">Hired</p>
-                <p className="text-5xl font-bold text-black">{hired}</p>
+              <div className="dashboard-card rounded-lg p-8">
+                <p className="text-sm mb-3 font-light" style={{ color: 'var(--color-text-secondary)' }}>Hired</p>
+                <p className="text-5xl font-bold" style={{ color: 'var(--color-success)' }}>{hired}</p>
               </div>
             </div>
 
 
             {/* Departments List */}
             {selectedOrg && departments.length > 0 && (
-              <div className="mb-12 bg-white border border-gray-200 rounded-lg p-6">
+              <div className="mb-12 dashboard-card rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-black">Departments</h2>
-                  <span className="text-sm text-gray-600">{departments.length} department{departments.length !== 1 ? 's' : ''}</span>
+                  <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Departments</h2>
+                  <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{departments.length} department{departments.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {departments.map((dept) => (
-                    <div key={dept.id} className="p-4 border border-gray-200 rounded-md hover:border-black transition-colors">
-                      <h3 className="font-semibold text-black mb-1">{dept.name}</h3>
+                    <div key={dept.id} className="p-4 rounded-md dashboard-card">
+                      <h3 className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{dept.name}</h3>
                       {dept.description && (
-                        <p className="text-sm text-gray-600 font-light">{dept.description}</p>
+                        <p className="text-sm font-light" style={{ color: 'var(--color-text-secondary)' }}>{dept.description}</p>
                       )}
                     </div>
                   ))}
@@ -186,12 +186,15 @@ export default function DashboardPage() {
             )}
 
             {/* Job Requests Summary */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-black">Job Requests</h2>
+            <div className="dashboard-card rounded-lg overflow-hidden">
+              <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Job Requests</h2>
                 <Link
                   href="/dashboard/job-requests"
-                  className="text-sm font-medium text-gray-600 hover:text-black transition-colors"
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
                 >
                   View All →
                 </Link>
@@ -221,7 +224,7 @@ export default function DashboardPage() {
                   <p className="text-gray-600 font-light mb-4 text-sm">Create your first job request to start hiring</p>
                   <Link
                     href="/dashboard/job-requests/new"
-                    className="inline-flex items-center px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors group"
+                    className="dashboard-btn-primary inline-flex items-center px-6 py-3 rounded-md font-medium group"
                   >
                     Create Job Request
                     <svg
@@ -250,32 +253,35 @@ export default function DashboardPage() {
                         setSelectedJobRequestId(jobRequest.id);
                         router.push('/dashboard/job-requests/detail');
                       }}
-                      className="block px-4 py-3 hover:bg-gray-50 transition-colors group cursor-pointer"
+                      className="block px-4 py-3 transition-colors group cursor-pointer"
+                      style={{ backgroundColor: 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-semibold text-black mb-2 group-hover:text-gray-700 transition-colors truncate">
+                          <h3 className="text-base font-semibold mb-2 transition-colors truncate" style={{ color: 'var(--color-text-primary)' }}>
                             {jobRequest.title}
                           </h3>
                           {jobRequest.departmentName && (
-                            <p className="text-xs text-gray-600 mb-2 font-light">
+                            <p className="text-xs mb-2 font-light" style={{ color: 'var(--color-text-secondary)' }}>
                               {jobRequest.departmentName}
                             </p>
                           )}
                           <div className="flex items-center gap-3 text-xs">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              jobRequest.status === 'hired' ? 'bg-green-50 text-green-700 border border-green-200' :
-                              jobRequest.status === 'candidates_delivered' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                              jobRequest.status === 'interviews_scheduled' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
-                              'bg-gray-50 text-gray-700 border border-gray-200'
+                              jobRequest.status === 'hired' ? 'dashboard-badge-success' :
+                              jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-primary' :
+                              jobRequest.status === 'interviews_scheduled' ? 'dashboard-badge-secondary' :
+                              'dashboard-badge-default'
                             }`}>
                               {jobRequest.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                             </span>
                             {jobRequest.candidateCount !== undefined && jobRequest.candidateCount > 0 && (
-                              <span className="text-gray-600 font-light">{jobRequest.candidateCount} candidates</span>
+                              <span className="font-light" style={{ color: 'var(--color-text-secondary)' }}>{jobRequest.candidateCount} candidates</span>
                             )}
                             {jobRequest.interviewCount !== undefined && jobRequest.interviewCount > 0 && (
-                              <span className="text-gray-600 font-light">{jobRequest.interviewCount} interviews</span>
+                              <span className="font-light" style={{ color: 'var(--color-text-secondary)' }}>{jobRequest.interviewCount} interviews</span>
                             )}
                           </div>
                         </div>
@@ -289,7 +295,10 @@ export default function DashboardPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="w-4 h-4 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all flex-shrink-0 ml-2"
+                          className="w-4 h-4 group-hover:translate-x-1 transition-all flex-shrink-0 ml-2"
+                          style={{ color: 'var(--color-text-tertiary)' }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-tertiary)'}
                         >
                           <path d="m9 18 6-6-6-6"></path>
                         </svg>
@@ -300,7 +309,10 @@ export default function DashboardPage() {
                     <div className="px-4 py-3 text-center border-t border-gray-200">
                       <Link
                         href="/dashboard/job-requests"
-                        className="text-sm font-medium text-gray-600 hover:text-black transition-colors"
+                        className="text-sm font-medium transition-colors"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
                       >
                         View all {jobRequests.length} job requests →
                     </Link>

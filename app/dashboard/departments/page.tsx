@@ -139,7 +139,7 @@ export default function DepartmentsDashboardPage() {
           {selectedOrgId && (
             <button
               onClick={() => setShowDeptForm(true)}
-              className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+              className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
             >
               + Create Department
             </button>
@@ -197,7 +197,7 @@ export default function DepartmentsDashboardPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 font-light">Hired</span>
-                  <span className="text-lg font-bold text-green-600">{dept.statusBreakdown.hired}</span>
+                  <span className="text-lg font-bold" style={{ color: 'var(--color-success)' }}>{dept.statusBreakdown.hired}</span>
                 </div>
               </div>
 
@@ -294,7 +294,7 @@ export default function DepartmentsDashboardPage() {
                   <button
                     type="submit"
                     disabled={creatingDept}
-                    className="flex-1 px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-3 dashboard-btn-primary font-medium transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {creatingDept ? 'Creating...' : 'Create'}
                   </button>

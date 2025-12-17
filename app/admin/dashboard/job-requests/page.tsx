@@ -110,27 +110,27 @@ export default function AdminJobRequestsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {jobRequests.map((jobRequest) => (
                     <tr key={jobRequest.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm font-medium text-black">
                         {jobRequest.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
                         {(jobRequest as any).organizationName || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.departmentName || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
                         {(jobRequest as any).requestedByFirstName} {(jobRequest as any).requestedByLastName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600 capitalize">
                         {jobRequest.priority}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.createdAt ? new Date(jobRequest.createdAt).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-1 whitespace-nowrap">
                         {jobRequest.assignedToHrUserId ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                          <span className="px-3 py-1 dashboard-badge-success rounded-full text-xs font-medium">
                             Assigned to {(jobRequest as any).assignedHrFirstName}
                           </span>
                         ) : (
@@ -139,17 +139,17 @@ export default function AdminJobRequestsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-1 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleJobRequestClick(jobRequest.id)}
-                            className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                            className="px-4 py-1 dashboard-btn-primary font-medium transition-colors rounded-md"
                           >
                             View Details
                           </button>
                           <button
                             onClick={() => setShowAssignHR({ jobRequestId: jobRequest.id })}
-                            className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[100px]"
+                            className="px-4 py-1 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[100px]"
                           >
                             {jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId ? 'Change HR' : 'Assign HR'}
                           </button>
@@ -277,7 +277,7 @@ function JobRequestDetailModal({
             <div>
               <p className="text-sm text-gray-600 mb-1">Status</p>
               <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                jobRequest.status === 'candidates_delivered' ? 'bg-green-100 text-green-800' :
+                jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-success' :
                 jobRequest.status === 'assigned_to_hr' ? 'bg-blue-100 text-blue-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
@@ -303,7 +303,7 @@ function JobRequestDetailModal({
             {(jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId) && (
               <button
                 onClick={() => setShowPushCandidates(true)}
-                className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
               >
                 + Push Candidates
               </button>
@@ -316,7 +316,7 @@ function JobRequestDetailModal({
               {(jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId) && (
                 <button
                   onClick={() => setShowPushCandidates(true)}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                 >
                   Push First Candidates
                 </button>
@@ -349,7 +349,7 @@ function JobRequestDetailModal({
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           candidate.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
                           candidate.status === 'viewed' ? 'bg-yellow-100 text-yellow-800' :
-                          candidate.status === 'selected' ? 'bg-green-100 text-green-800' :
+                          candidate.status === 'selected' ? 'dashboard-badge-success' :
                           'bg-gray-100 text-gray-800'
                         }`}>
                           {candidate.status.replace(/_/g, ' ')}
@@ -605,7 +605,7 @@ function PushCandidatesModal({ jobRequestId, onClose }: { jobRequestId: number; 
                 <button
                   type="submit"
                   disabled={loading || selectedCandidateIds.length === 0}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md disabled:opacity-50"
                 >
                   {loading ? 'Pushing...' : `Push ${selectedCandidateIds.length} Candidate${selectedCandidateIds.length !== 1 ? 's' : ''}`}
                 </button>
@@ -683,7 +683,7 @@ function AssignHRModal({ jobRequestId, hrUsers, onClose, isChanging = false }: {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50"
+              className="flex-1 px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md disabled:opacity-50"
             >
               {loading ? (isChanging ? 'Changing...' : 'Assigning...') : (isChanging ? 'Change HR' : 'Assign HR')}
             </button>

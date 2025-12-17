@@ -237,32 +237,37 @@ export default function DashboardSidebar({
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-screen bg-white border-r border-gray-200 z-50 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-screen z-50 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 w-64`}
+        style={{ backgroundColor: '#000000', borderRight: '1px solid rgba(255, 255, 255, 0.1)' }}
       >
         <div className="h-full flex flex-col">
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.3)' }}>
             <Link href="/" className="flex items-center justify-center group">
-              <div className="w-8 h-8 bg-black rounded flex items-center justify-center mr-3 transition-colors">
-                <span className="text-white font-bold text-sm">IX</span>
+              <div className="w-8 h-8 bg-white rounded flex items-center justify-center mr-3 transition-colors">
+                <span className="text-black font-bold text-sm">IX</span>
               </div>
-              <span className="text-lg font-semibold text-black tracking-tight">InstinctX</span>
+              <span className="text-lg font-semibold text-white tracking-tight">InstinctX</span>
             </Link>
           </div>
 
           {/* Close button for mobile */}
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-md transition-colors"
+            className="lg:hidden absolute top-6 right-6 p-2 rounded-md transition-colors"
+            style={{ backgroundColor: 'transparent', color: 'white' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -291,11 +296,11 @@ export default function DashboardSidebar({
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
                     active
-                      ? 'bg-black text-white'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-black'
+                      ? 'dashboard-nav-active'
+                      : 'dashboard-nav-inactive'
                   }`}
                 >
-                  <span className={active ? 'text-white' : 'text-gray-500'}>
+                  <span>
                     {item.icon}
                   </span>
                   <span className="font-medium text-sm">{item.label}</span>
@@ -306,13 +311,13 @@ export default function DashboardSidebar({
 
           {/* Actions Section - Only for client */}
           {user?.userType === 'client' && organizationId && (
-            <div className="p-4 border-t border-gray-200 space-y-2">
+            <div className="p-4 space-y-2 rounded-lg mx-2 mb-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
               <Link
                 href="/dashboard/interviews"
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
                   isActive('/dashboard/interviews')
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-black hover:bg-gray-200'
+                    ? 'dashboard-nav-active'
+                    : 'dashboard-btn-secondary'
                 }`}
               >
                 <svg
@@ -336,7 +341,7 @@ export default function DashboardSidebar({
               {onInviteTeam && canInviteTeam && (
                 <button
                   onClick={onInviteTeam}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-md bg-gray-100 text-black hover:bg-gray-200 transition-colors"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-md dashboard-btn-secondary"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -361,21 +366,24 @@ export default function DashboardSidebar({
           )}
 
           {/* User Section */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm" style={{ background: 'var(--gradient-primary)' }}>
                 {user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-black truncate">
+                <p className="text-sm font-medium truncate text-white">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                <p className="text-xs truncate" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>{user?.email}</p>
               </div>
             </div>
             <button
               onClick={logout}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{ color: 'var(--color-error-dark)', backgroundColor: 'var(--color-error-lightest)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-error-lighter)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-error-lightest)'}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -401,7 +409,10 @@ export default function DashboardSidebar({
       {/* Mobile menu button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 left-4 lg:hidden z-30 p-2 bg-white border border-gray-200 rounded-md shadow-md hover:bg-gray-50 transition-colors"
+        className="fixed top-4 left-4 lg:hidden z-30 p-2 rounded-md shadow-md transition-colors"
+        style={{ backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'white' }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

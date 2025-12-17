@@ -3,12 +3,179 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Professional Recruitment Platform Color Palette */
+  /* Primary - Deep Blue (Trust, Professionalism) */
+  --color-primary: #092562;
+  --color-primary-dark: #061A4A;
+  --color-primary-light: #0D3A8C;
+  --color-primary-lighter: #DBEAFE;
+  --color-primary-lightest: #EFF6FF;
+  
+  /* Secondary - Purple/Violet (Innovation, Creativity) */
+  --color-secondary: #7C3AED;
+  --color-secondary-dark: #6D28D9;
+  --color-secondary-light: #8B5CF6;
+  --color-secondary-lighter: #E9D5FF;
+  --color-secondary-lightest: #F3E8FF;
+  
+  /* Accent - Coral/Orange (Energy, Enthusiasm) */
+  --color-accent: #F97316;
+  --color-accent-dark: #EA580C;
+  --color-accent-light: #FB923C;
+  --color-accent-lighter: #FED7AA;
+  --color-accent-lightest: #FFF7ED;
+  
+  /* Success - Teal/Blue-Green (Modern, Fresh - replaces green) */
+  --color-success: #14B8A6;
+  --color-success-dark: #0D9488;
+  --color-success-light: #2DD4BF;
+  --color-success-lighter: #99F6E4;
+  --color-success-lightest: #F0FDFA;
+  
+  /* Warning - Amber */
+  --color-warning: #F59E0B;
+  --color-warning-dark: #D97706;
+  --color-warning-light: #FBBF24;
+  --color-warning-lighter: #FDE68A;
+  --color-warning-lightest: #FFFBEB;
+  
+  /* Error - Red */
+  --color-error: #EF4444;
+  --color-error-dark: #DC2626;
+  --color-error-light: #F87171;
+  --color-error-lighter: #FECACA;
+  --color-error-lightest: #FEF2F2;
+  
+  /* Neutral Colors */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-border: #E5E7EB;
+  --color-border-hover: #D1D5DB;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F9FAFB;
+  --color-bg-tertiary: #F3F4F6;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  --gradient-success: linear-gradient(135deg, var(--color-success) 0%, var(--color-primary) 100%);
 }
 
+/* Tailwind CSS v4 @theme directive */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-poppins), -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Dashboard-specific utility classes */
+.dashboard-btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.dashboard-btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.dashboard-btn-secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.dashboard-btn-secondary:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-hover);
+}
+
+/* Sidebar-specific secondary button style */
+aside .dashboard-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+aside .dashboard-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dashboard-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.dashboard-badge-success {
+  background: var(--color-success-lightest);
+  color: var(--color-success-dark);
+  border: 1px solid var(--color-success-lighter);
+}
+
+.dashboard-badge-primary {
+  background: var(--color-primary-lightest);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary-lighter);
+}
+
+.dashboard-badge-secondary {
+  background: var(--color-secondary-lightest);
+  color: var(--color-secondary-dark);
+  border: 1px solid var(--color-secondary-lighter);
+}
+
+.dashboard-badge-accent {
+  background: var(--color-accent-lightest);
+  color: var(--color-accent-dark);
+  border: 1px solid var(--color-accent-lighter);
+}
+
+.dashboard-badge-warning {
+  background: var(--color-warning-lightest);
+  color: var(--color-warning-dark);
+  border: 1px solid var(--color-warning-lighter);
+}
+
+.dashboard-badge-default {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.dashboard-nav-active {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.dashboard-nav-inactive {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+}
+
+.dashboard-nav-inactive svg {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dashboard-nav-inactive:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-primary);
+}
+
+.dashboard-nav-inactive:hover svg {
+  color: var(--color-primary);
 }
 
 body {
@@ -55,10 +222,10 @@ body {
   animation: shimmer 3s ease-in-out infinite;
 }
 
-/* Custom sidebar scrollbar */
+/* Custom sidebar scrollbar - for black sidebar */
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f9fafb;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .sidebar-scroll::-webkit-scrollbar {
@@ -66,14 +233,14 @@ body {
 }
 
 .sidebar-scroll::-webkit-scrollbar-track {
-  background: #f9fafb;
+  background: transparent;
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 5px;
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: rgba(255, 255, 255, 0.3);
 }

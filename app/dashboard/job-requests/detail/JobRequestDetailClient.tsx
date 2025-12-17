@@ -144,7 +144,7 @@ export default function JobRequestDetailClient() {
                 <p className="text-gray-600 mb-2">{jobRequest.departmentName}</p>
               )}
               <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                jobRequest.status === 'hired' ? 'bg-green-100 text-green-800' :
+                jobRequest.status === 'hired' ? 'dashboard-badge-success' :
                 jobRequest.status === 'candidates_delivered' ? 'bg-blue-100 text-blue-800' :
                 jobRequest.status === 'interviews_scheduled' ? 'bg-purple-100 text-purple-800' :
                 'bg-gray-100 text-gray-800'
@@ -154,7 +154,7 @@ export default function JobRequestDetailClient() {
             </div>
             <Link
               href="/dashboard/interviews/new"
-              className="px-6 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+              className="px-6 py-3 dashboard-btn-primary font-medium transition-colors rounded-md"
             >
               Schedule Interview
             </Link>
@@ -302,7 +302,7 @@ export default function JobRequestDetailClient() {
                           </p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          interview.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          interview.status === 'completed' ? 'dashboard-badge-success' :
                           interview.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
@@ -416,7 +416,7 @@ function InterviewDetailModal({ interview, onClose }: { interview: Interview; on
           <div>
             <h3 className="text-sm font-medium text-gray-600 mb-1">Status</h3>
             <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-              interview.status === 'completed' ? 'bg-green-100 text-green-800' :
+              interview.status === 'completed' ? 'dashboard-badge-success' :
               interview.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
               interview.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' :
               interview.status === 'cancelled' ? 'bg-red-100 text-red-800' :
@@ -466,7 +466,7 @@ function InterviewDetailModal({ interview, onClose }: { interview: Interview; on
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-gray-500 capitalize">{participant.role}</span>
                       {participant.confirmed ? (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        <span className="px-2 py-1 dashboard-badge-success rounded-full text-xs font-medium">
                           Confirmed
                         </span>
                       ) : (

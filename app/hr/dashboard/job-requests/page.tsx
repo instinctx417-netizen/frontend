@@ -119,9 +119,9 @@ export default function HRJobRequestsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          jobRequest.status === 'candidates_delivered' ? 'bg-green-100 text-green-800' :
-                          jobRequest.status === 'assigned_to_hr' ? 'bg-blue-100 text-blue-800' :
-                          'bg-gray-100 text-gray-800'
+                          jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-success' :
+                          jobRequest.status === 'assigned_to_hr' ? 'dashboard-badge-primary' :
+                          'dashboard-badge-default'
                         }`}>
                           {jobRequest.status.replace(/_/g, ' ')}
                         </span>
@@ -132,7 +132,7 @@ export default function HRJobRequestsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleJobRequestClick(jobRequest.id)}
-                          className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                          className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                         >
                           View Details
                         </button>
@@ -233,9 +233,9 @@ function JobRequestDetailModal({
             <div>
               <p className="text-sm text-gray-600 mb-1">Status</p>
               <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                jobRequest.status === 'candidates_delivered' ? 'bg-green-100 text-green-800' :
-                jobRequest.status === 'assigned_to_hr' ? 'bg-blue-100 text-blue-800' :
-                'bg-gray-100 text-gray-800'
+                jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-success' :
+                jobRequest.status === 'assigned_to_hr' ? 'dashboard-badge-primary' :
+                'dashboard-badge-default'
               }`}>
                 {jobRequest.status.replace(/_/g, ' ')}
               </span>
@@ -259,7 +259,7 @@ function JobRequestDetailModal({
             {(jobRequest.status === 'assigned_to_hr' || jobRequest.status === 'candidates_delivered') && (
               <button
                 onClick={() => setShowPushCandidates(true)}
-                className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
               >
                 + Push Candidates
               </button>
@@ -272,7 +272,7 @@ function JobRequestDetailModal({
               {(jobRequest.status === 'assigned_to_hr' || jobRequest.status === 'candidates_delivered') && (
                 <button
                   onClick={() => setShowPushCandidates(true)}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                 >
                   Push First Candidates
                 </button>
@@ -303,10 +303,10 @@ function JobRequestDetailModal({
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          candidate.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
-                          candidate.status === 'viewed' ? 'bg-yellow-100 text-yellow-800' :
-                          candidate.status === 'selected' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800'
+                          candidate.status === 'delivered' ? 'dashboard-badge-primary' :
+                          candidate.status === 'viewed' ? 'dashboard-badge-warning' :
+                          candidate.status === 'selected' ? 'dashboard-badge-success' :
+                          'dashboard-badge-default'
                         }`}>
                           {candidate.status.replace(/_/g, ' ')}
                         </span>
@@ -526,7 +526,7 @@ function PushCandidatesModal({ jobRequestId, onClose }: { jobRequestId: number; 
               <button
                 type="submit"
                 disabled={loading || selectedCandidateIds.length === 0}
-                className="flex-1 px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50"
+                className="flex-1 px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md disabled:opacity-50"
               >
                 {loading ? 'Pushing Candidates...' : `Push ${selectedCandidateIds.length} Candidate${selectedCandidateIds.length !== 1 ? 's' : ''}`}
               </button>

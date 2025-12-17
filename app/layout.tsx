@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${poppins.variable} font-sans antialiased`}>
         <ToastProvider>
           <AuthProvider>
             <ConditionalLayout>

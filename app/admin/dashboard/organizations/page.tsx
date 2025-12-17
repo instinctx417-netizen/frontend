@@ -119,7 +119,7 @@ export default function AdminOrganizationsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         org.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
+                          ? 'dashboard-badge-success' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
                         {org.status === 'active' ? 'Active' : 'Inactive'}
@@ -136,7 +136,7 @@ export default function AdminOrganizationsPage() {
                           className={`px-4 py-2 font-medium transition-colors rounded-md whitespace-nowrap min-w-[100px] ${
                             org.status === 'active'
                               ? 'bg-gray-200 text-black hover:bg-gray-300'
-                              : 'bg-black text-white hover:bg-gray-800'
+                              : 'dashboard-btn-primary'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                         >
                           {updatingOrgId === (org.id || org.organization_id) 
@@ -200,7 +200,7 @@ export default function AdminOrganizationsPage() {
                     <label className="block text-sm font-medium text-gray-500 mb-1">Status</label>
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                       selectedOrganization.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
+                        ? 'dashboard-badge-success' 
                         : 'bg-gray-100 text-gray-800'
                     }`}>
                       {selectedOrganization.status === 'active' ? 'Active' : 'Inactive'}

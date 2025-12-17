@@ -228,13 +228,13 @@ export default function NewJobRequestPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="dashboard-btn-primary px-8 py-3 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Submitting...' : 'Submit Job Request'}
               </button>
               <Link
                 href="/dashboard"
-                className="px-8 py-3 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md"
+                className="dashboard-btn-secondary px-8 py-3 rounded-md font-medium"
               >
                 Cancel
               </Link>

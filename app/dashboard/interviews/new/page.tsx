@@ -205,7 +205,7 @@ export default function NewInterviewPage() {
               <p className="text-gray-600 mb-4">Please select a job request first</p>
               <Link
                 href="/dashboard"
-                className="inline-block px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                className="dashboard-btn-primary inline-block px-6 py-2 rounded-md font-medium"
               >
                 Go to Dashboard
               </Link>
@@ -377,7 +377,7 @@ export default function NewInterviewPage() {
               <button
                 type="submit"
                 disabled={loading || !selectedJobRequest}
-                className="px-8 py-3 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="dashboard-btn-primary px-8 py-3 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Scheduling...' : 'Schedule Interview'}
               </button>

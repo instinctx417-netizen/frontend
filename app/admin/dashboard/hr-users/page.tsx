@@ -64,7 +64,7 @@ export default function AdminHRUsersPage() {
           <h1 className="text-3xl font-bold text-black">HR Users</h1>
           <button
             onClick={() => setShowCreateHR(true)}
-            className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+            className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
           >
             + Create HR User
           </button>
@@ -75,7 +75,7 @@ export default function AdminHRUsersPage() {
             <p className="text-gray-600 mb-4">No HR users created yet</p>
             <button
               onClick={() => setShowCreateHR(true)}
-              className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+              className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
             >
               Create First HR User
             </button>
@@ -191,7 +191,7 @@ export default function AdminHRUsersPage() {
               <div className="p-6 border-t border-gray-200 flex justify-end">
                 <button
                   onClick={() => setSelectedHRUser(null)}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                 >
                   Close
                 </button>
@@ -308,7 +308,7 @@ function CreateHRModal({ onClose }: { onClose: () => void }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50"
+              className="flex-1 px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md disabled:opacity-50"
             >
               {loading ? 'Creating...' : 'Create HR User'}
             </button>

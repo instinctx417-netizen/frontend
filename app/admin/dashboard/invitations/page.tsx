@@ -189,7 +189,7 @@ export default function AdminInvitationsPage() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleApproveInvitation(invitation.id)}
-                              className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                             >
                               Approve
                             </button>
@@ -217,7 +217,7 @@ export default function AdminInvitationsPage() {
                                 alert('Failed to get invitation link');
                               }
                             }}
-                            className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                           >
                             View Link
                           </button>
@@ -272,7 +272,7 @@ function InvitationLinkModal({ email, link, onClose }: { email: string; link: st
             />
             <button
               onClick={handleCopy}
-              className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
             >
               {copied ? 'Copied!' : 'Copy'}
             </button>

@@ -147,10 +147,10 @@ export default function ClientInterviewsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          interview.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          interview.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                          interview.status === 'scheduled' ? 'bg-gray-100 text-gray-800' :
-                          'bg-gray-100 text-gray-800'
+                          interview.status === 'completed' ? 'dashboard-badge-success' :
+                          interview.status === 'confirmed' ? 'dashboard-badge-primary' :
+                          interview.status === 'scheduled' ? 'dashboard-badge-default' :
+                          'dashboard-badge-default'
                         }`}>
                           {interview.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>

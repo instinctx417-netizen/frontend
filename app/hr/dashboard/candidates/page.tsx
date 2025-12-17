@@ -120,7 +120,7 @@ export default function HRCandidatesPage() {
                           )}
                           <button 
                             onClick={() => setSelectedCandidate(candidate)}
-                            className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                           >
                             View Details
                           </button>
@@ -210,7 +210,7 @@ export default function HRCandidatesPage() {
               <div className="p-6 border-t border-gray-200 flex justify-end">
                 <button
                   onClick={() => setSelectedCandidate(null)}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                 >
                   Close
                 </button>
