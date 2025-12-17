@@ -311,7 +311,7 @@ export default function DashboardSidebar({
 
           {/* Actions Section - Only for client */}
           {user?.userType === 'client' && organizationId && (
-            <div className="p-4 space-y-2 rounded-lg mx-2 mb-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+            <div className="p-2 pt-3 space-y-2 rounded-lg mx-2 mb-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
               <Link
                 href="/dashboard/interviews"
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${

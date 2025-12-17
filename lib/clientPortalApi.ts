@@ -106,9 +106,6 @@ export interface UserInvitation {
   invitedByUserId: number;
   email: string;
   role: string;
-  departmentId?: number;
-  department_name?: string;
-  departmentName?: string;
   token: string;
   status: string;
   verifiedByAdminId?: number;
@@ -163,7 +160,7 @@ export const clientPortalApi = {
   },
 
   // Organization Users
-  getOrganizationUsers: async (organizationId: number): Promise<ApiResponse<{ users: Array<{ id: number; email: string; firstName: string; lastName: string; role: string; departmentName?: string }> }>> => {
+  getOrganizationUsers: async (organizationId: number): Promise<ApiResponse<{ users: Array<{ id: number; email: string; firstName: string; lastName: string; role: string }> }>> => {
     return apiRequest(`/client-portal/organizations/${organizationId}/users`);
   },
 
@@ -289,7 +286,6 @@ export const clientPortalApi = {
   createInvitation: async (organizationId: number, data: {
     email: string;
     role: string;
-    departmentId?: number;
   }): Promise<ApiResponse<{ invitation: UserInvitation }>> => {
     return apiRequest(`/client-portal/organizations/${organizationId}/invitations`, {
       method: 'POST',
@@ -365,8 +361,6 @@ export interface PendingInvitation {
   invitedByLastName: string;
   email: string;
   role: string;
-  departmentId?: number;
-  departmentName?: string;
   status: string;
   expiresAt: string;
   createdAt: string;

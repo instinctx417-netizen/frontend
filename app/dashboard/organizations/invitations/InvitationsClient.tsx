@@ -22,7 +22,6 @@ export default function InvitationsClient() {
   const [formData, setFormData] = useState({
     email: '',
     role: 'member',
-    departmentId: '',
   });
 
   useEffect(() => {
@@ -75,12 +74,11 @@ export default function InvitationsClient() {
       const response = await clientPortalApi.createInvitation(currentOrgId, {
         email: formData.email,
         role: formData.role,
-        departmentId: formData.departmentId ? parseInt(formData.departmentId) : undefined,
       });
 
       if (response.success) {
         setShowForm(false);
-        setFormData({ email: '', role: 'member', departmentId: '' });
+        setFormData({ email: '', role: 'member' });
         await loadInvitations();
       } else {
         setError(response.message || 'Failed to create invitation');
@@ -192,12 +190,12 @@ export default function InvitationsClient() {
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto sidebar-scroll">
               <table className="w-full min-w-[800px]">
-                <thead className="bg-gray-50">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Role</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Status</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Sent</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

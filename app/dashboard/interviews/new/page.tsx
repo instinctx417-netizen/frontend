@@ -19,7 +19,7 @@ export default function NewInterviewPage() {
 
   const [selectedJobRequest, setSelectedJobRequest] = useState<JobRequest | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [organizationUsers, setOrganizationUsers] = useState<Array<{ id: number; email: string; firstName: string; lastName: string; role: string; departmentName?: string }>>([]);
+  const [organizationUsers, setOrganizationUsers] = useState<Array<{ id: number; email: string; firstName: string; lastName: string; role: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [loadingJobRequest, setLoadingJobRequest] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -363,7 +363,7 @@ export default function NewInterviewPage() {
                                 {user.firstName} {user.lastName}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {user.email} {user.departmentName && `• ${user.departmentName}`} {user.role && `• ${user.role.replace(/_/g, ' ')}`}
+                                {user.email} {user.role && `• ${user.role.replace(/_/g, ' ')}`}
                               </p>
                             </div>
                           </label>
