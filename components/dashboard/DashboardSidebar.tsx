@@ -294,7 +294,7 @@ export default function DashboardSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-md transition-colors ${
                     active
                       ? 'dashboard-nav-active'
                       : 'dashboard-nav-inactive'
@@ -314,7 +314,7 @@ export default function DashboardSidebar({
             <div className="p-2 pt-3 space-y-2 rounded-lg mx-2 mb-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
               <Link
                 href="/dashboard/interviews"
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
+                className={`w-full flex items-center space-x-2 px-4 py-3 rounded-md transition-colors ${
                   isActive('/dashboard/interviews')
                     ? 'dashboard-nav-active'
                     : 'dashboard-btn-secondary'

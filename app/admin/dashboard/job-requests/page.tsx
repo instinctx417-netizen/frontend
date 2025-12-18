@@ -2,16 +2,26 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { adminApi, hrApi, clientPortalApi, HRUser, JobRequest } from '@/lib/clientPortalApi';
 import { User } from '@/lib/api';
+import Pagination from '@/components/Pagination';
 
 export default function AdminJobRequestsPage() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
   const [hrUsers, setHrUsers] = useState<HRUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<{
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  } | null>(null);
   const [showAssignHR, setShowAssignHR] = useState<{ jobRequestId: number } | null>(null);
   const [selectedJobRequest, setSelectedJobRequest] = useState<JobRequest | null>(null);
   const [showJobRequestDetail, setShowJobRequestDetail] = useState(false);
@@ -30,20 +40,21 @@ export default function AdminJobRequestsPage() {
 
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadData();
+      loadData(1);
     }
   }, [isAuthenticated, user]);
 
-  const loadData = async () => {
+  const loadData = async (pageToLoad: number = 1) => {
     try {
       setLoading(true);
       const [jobRequestsResponse, hrResponse] = await Promise.all([
-        adminApi.getAllJobRequests(),
+        adminApi.getAllJobRequests(undefined, pageToLoad, 10),
         adminApi.getHRUsers(),
       ]);
 
       if (jobRequestsResponse.success && jobRequestsResponse.data) {
-        setJobRequests(jobRequestsResponse.data.jobRequests);
+        setJobRequests(jobRequestsResponse.data.jobRequests || []);
+        setPagination(jobRequestsResponse.data.pagination || null);
       }
 
       if (hrResponse.success && hrResponse.data) {
@@ -54,6 +65,23 @@ export default function AdminJobRequestsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle query parameter to open job request modal
+  useEffect(() => {
+    const jobRequestIdParam = searchParams.get('id');
+    if (jobRequestIdParam && !loading && jobRequests.length > 0 && !showJobRequestDetail) {
+      const jobRequestId = parseInt(jobRequestIdParam);
+      if (!isNaN(jobRequestId)) {
+        handleJobRequestClick(jobRequestId);
+      }
+    }
+  }, [searchParams, loading, jobRequests.length]);
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadData(newPage);
   };
 
   const handleJobRequestClick = async (jobRequestId: number) => {
@@ -93,10 +121,10 @@ export default function AdminJobRequestsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
-              <table className="w-full min-w-[800px]">
-                <thead>
-                  <tr>
+          <div className="overflow-x-auto table-scroll">
+          <table className="w-full min-w-[800px]">
+          <thead>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Title</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Organization</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Department</th>
@@ -110,25 +138,25 @@ export default function AdminJobRequestsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {jobRequests.map((jobRequest) => (
                     <tr key={jobRequest.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-1 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {jobRequest.title}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {(jobRequest as any).organizationName || 'N/A'}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.departmentName || 'N/A'}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {(jobRequest as any).requestedByFirstName} {(jobRequest as any).requestedByLastName}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600 capitalize">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600 capitalize">
                         {jobRequest.priority}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.createdAt ? new Date(jobRequest.createdAt).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         {jobRequest.assignedToHrUserId ? (
                           <span className="px-3 py-1 dashboard-badge-success rounded-full text-xs font-medium">
                             Assigned to {(jobRequest as any).assignedHrFirstName}
@@ -139,17 +167,17 @@ export default function AdminJobRequestsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-1 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleJobRequestClick(jobRequest.id)}
-                            className="px-4 py-1 dashboard-btn-primary font-medium transition-colors rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
                           >
                             View Details
                           </button>
                           <button
                             onClick={() => setShowAssignHR({ jobRequestId: jobRequest.id })}
-                            className="px-4 py-1 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[100px]"
+                            className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[112px]"
                           >
                             {jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId ? 'Change HR' : 'Assign HR'}
                           </button>
@@ -160,6 +188,16 @@ export default function AdminJobRequestsPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="job requests"
+              />
+            )}
           </div>
         )}
 
@@ -266,7 +304,7 @@ function JobRequestDetailModal({
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm text-gray-600 mb-1">Organization</p>
-              <p className="font-medium text-black">{(jobRequest as any).organizationName || 'N/A'}</p>
+              <p className="font-medium text-black">{(jobRequest as any).organization_name || 'N/A'}</p>
             </div>
             {jobRequest.departmentName && (
               <div>
@@ -323,7 +361,7 @@ function JobRequestDetailModal({
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[500px]">
                 <thead>
                   <tr>
@@ -518,7 +556,7 @@ function PushCandidatesModal({ jobRequestId, onClose }: { jobRequestId: number; 
                 </div>
               )}
 
-              <div className="overflow-x-auto sidebar-scroll border border-gray-200 rounded-lg">
+              <div className="overflow-x-auto table-scroll border border-gray-200 rounded-lg">
                 <table className="w-full min-w-[600px]">
                   <thead>
                     <tr>

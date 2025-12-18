@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useDashboard } from '@/app/dashboard/layout';
 import { clientPortalApi, JobRequest, Candidate, Interview } from '@/lib/clientPortalApi';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 export default function JobRequestDetailClient() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { selectedJobRequestId, setSelectedJobRequestId } = useDashboard();
 
   const [jobRequest, setJobRequest] = useState<JobRequest | null>(null);
@@ -28,17 +29,25 @@ export default function JobRequestDetailClient() {
       return;
     }
 
-    if (isAuthenticated && user?.userType === 'client' && selectedJobRequestId && !isNaN(selectedJobRequestId) && !hasLoadedRef.current) {
+    // Check for jobRequestId in URL query params first
+    const jobRequestIdFromUrl = searchParams.get('jobRequestId');
+    const jobRequestId = jobRequestIdFromUrl ? parseInt(jobRequestIdFromUrl) : selectedJobRequestId;
+
+    if (isAuthenticated && user?.userType === 'client' && jobRequestId && !isNaN(jobRequestId) && !hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadJobRequest();
-    } else if (!selectedJobRequestId) {
+      if (jobRequestIdFromUrl) {
+        setSelectedJobRequestId(jobRequestId);
+      }
+      loadJobRequest(jobRequestId);
+    } else if (!jobRequestId) {
       // If no job request selected, redirect back to job requests
       router.push('/dashboard/job-requests');
     }
-  }, [isAuthenticated, authLoading, user, selectedJobRequestId]);
+  }, [isAuthenticated, authLoading, user, selectedJobRequestId, searchParams]);
 
-  const loadJobRequest = async () => {
-    if (!selectedJobRequestId || isNaN(selectedJobRequestId)) {
+  const loadJobRequest = async (jobRequestId?: number) => {
+    const idToLoad = jobRequestId || selectedJobRequestId;
+    if (!idToLoad || isNaN(idToLoad)) {
       setError('Invalid job request ID');
       setLoading(false);
       return;
@@ -46,7 +55,7 @@ export default function JobRequestDetailClient() {
 
     try {
       setLoading(true);
-      const response = await clientPortalApi.getJobRequest(selectedJobRequestId);
+      const response = await clientPortalApi.getJobRequest(idToLoad);
       if (response.success && response.data) {
         setJobRequest(response.data.jobRequest);
         setCandidates(response.data.jobRequest.candidates || []);

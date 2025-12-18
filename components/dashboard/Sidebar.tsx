@@ -107,7 +107,7 @@ export default function Sidebar({ organizationId, onCreateDepartment }: SidebarP
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-md transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-md transition-colors ${
                     active
                       ? 'bg-black text-white'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-black'

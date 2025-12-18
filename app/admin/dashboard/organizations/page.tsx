@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { adminApi } from '@/lib/clientPortalApi';
+import { adminApi, PaginationMeta } from '@/lib/clientPortalApi';
 import Link from 'next/link';
+import Pagination from '@/components/Pagination';
 
 export default function AdminOrganizationsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -14,6 +15,7 @@ export default function AdminOrganizationsPage() {
   const [updatingOrgId, setUpdatingOrgId] = useState<number | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<any | null>(null);
   const hasLoadedRef = useRef(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,22 +30,32 @@ export default function AdminOrganizationsPage() {
 
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadOrganizations();
+      loadOrganizations(1);
     }
   }, [isAuthenticated, user]);
 
-  const loadOrganizations = async () => {
+  const loadOrganizations = async (pageToLoad: number = 1) => {
     try {
       setLoading(true);
-      const response = await adminApi.getAllOrganizations();
+      const response = await adminApi.getAllOrganizations(pageToLoad, 10);
       if (response.success && response.data) {
         setOrganizations(response.data.organizations || []);
+        setPagination(response.data.pagination || null);
+      } else {
+        setOrganizations([]);
+        setPagination(null);
       }
     } catch (error) {
       console.error('Error loading organizations:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadOrganizations(newPage);
   };
 
   const handleToggleStatus = async (organizationId: number, currentStatus: string) => {
@@ -96,10 +108,10 @@ export default function AdminOrganizationsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Name</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Industry</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Company Size</th>
@@ -111,12 +123,12 @@ export default function AdminOrganizationsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {organizations.map((org) => (
                     <tr key={org.id || org.organization_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {org.name || org.organization_name}
                       </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{org.industry || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{org.companySize || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{org.industry || 'N/A'}</td>
+                    <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{org.companySize || 'N/A'}</td>
+                    <td className="px-6 py-2 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         org.status === 'active' 
                           ? 'dashboard-badge-success' 
@@ -125,15 +137,15 @@ export default function AdminOrganizationsPage() {
                         {org.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                       {org.created_at ? new Date(org.created_at).toLocaleDateString() : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleToggleStatus(org.id || org.organization_id, org.status || 'inactive')}
                           disabled={updatingOrgId === (org.id || org.organization_id)}
-                          className={`px-4 py-2 font-medium transition-colors rounded-md whitespace-nowrap min-w-[100px] ${
+                          className={`px-4 py-2 font-medium transition-colors rounded-md whitespace-nowrap min-w-[112px] ${
                             org.status === 'active'
                               ? 'bg-gray-200 text-black hover:bg-gray-300'
                               : 'dashboard-btn-primary'
@@ -147,7 +159,7 @@ export default function AdminOrganizationsPage() {
                         </button>
                         <button 
                           onClick={() => setSelectedOrganization(org)}
-                          className="px-4 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
+                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
                         >
                           View Details
                         </button>
@@ -158,6 +170,16 @@ export default function AdminOrganizationsPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="organizations"
+              />
+            )}
           </div>
         )}
 

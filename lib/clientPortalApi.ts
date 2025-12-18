@@ -48,6 +48,15 @@ export interface JobRequest {
   interviews?: Interview[];
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export interface Candidate {
   id: number;
   jobRequestId: number;
@@ -165,10 +174,19 @@ export const clientPortalApi = {
   },
 
   // Job Requests
-  getJobRequests: async (organizationId: number, filters?: { status?: string; departmentId?: number }): Promise<ApiResponse<{ jobRequests: JobRequest[] }>> => {
+  getJobRequests: async (
+    organizationId: number,
+    filters?: { status?: string; departmentId?: number },
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ jobRequests: JobRequest[]; pagination?: PaginationMeta }>> => {
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
     if (filters?.departmentId) params.append('departmentId', filters.departmentId.toString());
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
     const query = params.toString();
     return apiRequest(`/client-portal/organizations/${organizationId}/job-requests${query ? `?${query}` : ''}`);
   },
@@ -257,12 +275,35 @@ export const clientPortalApi = {
     return apiRequest(`/client-portal/organizations/${organizationId}/interviews/upcoming${query}`);
   },
 
-  getOrganizationInterviews: async (organizationId: number): Promise<ApiResponse<{ interviews: Interview[] }>> => {
-    return apiRequest(`/client-portal/organizations/${organizationId}/interviews`);
+  getOrganizationInterviews: async (
+    organizationId: number,
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ interviews: Interview[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/organizations/${organizationId}/interviews${query}`);
   },
 
-  getParticipantInterviews: async (): Promise<ApiResponse<{ interviews: Interview[] }>> => {
-    return apiRequest('/client-portal/interviews/participant/me');
+  getParticipantInterviews: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ interviews: Interview[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/interviews/participant/me${query}`);
   },
 
   addInterviewParticipant: async (interviewId: number, userId: number, role?: string): Promise<ApiResponse<{ participant: InterviewParticipant }>> => {
@@ -279,8 +320,18 @@ export const clientPortalApi = {
   },
 
   // Invitations
-  getInvitations: async (organizationId: number): Promise<ApiResponse<{ invitations: UserInvitation[] }>> => {
-    return apiRequest(`/client-portal/organizations/${organizationId}/invitations`);
+  getInvitations: async (
+    organizationId: number,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ invitations: UserInvitation[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/organizations/${organizationId}/invitations${query}`);
   },
 
   createInvitation: async (organizationId: number, data: {
@@ -380,16 +431,45 @@ export const adminApi = {
     });
   },
 
-  getHRUsers: async (): Promise<ApiResponse<{ users: HRUser[] }>> => {
-    return apiRequest('/client-portal/admin/hr-users');
+  getHRUsers: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ users: HRUser[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/hr-users${query}`);
   },
 
-  getPendingInvitations: async (): Promise<ApiResponse<{ invitations: PendingInvitation[] }>> => {
-    return apiRequest('/client-portal/admin/invitations?status=pending');
+  getPendingInvitations: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ invitations: PendingInvitation[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    params.append('status', 'pending');
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = `?${params.toString()}`;
+    return apiRequest(`/client-portal/admin/invitations${query}`);
   },
 
-  getApprovedInvitations: async (): Promise<ApiResponse<{ invitations: PendingInvitation[] }>> => {
-    return apiRequest('/client-portal/admin/invitations?status=approved');
+  getApprovedInvitations: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ invitations: PendingInvitation[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    params.append('status', 'approved');
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = `?${params.toString()}`;
+    return apiRequest(`/client-portal/admin/invitations${query}`);
   },
 
   approveInvitation: async (invitationId: number): Promise<ApiResponse<{ invitation: any }>> => {
@@ -413,8 +493,18 @@ export const adminApi = {
     return apiRequest(`/client-portal/admin/invitations/${invitationId}/link`);
   },
 
-  getAllJobRequests: async (status?: string): Promise<ApiResponse<{ jobRequests: JobRequest[] }>> => {
-    const query = status ? `?status=${status}` : '';
+  getAllJobRequests: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ jobRequests: JobRequest[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
     return apiRequest(`/client-portal/admin/job-requests${query}`);
   },
 
@@ -426,16 +516,45 @@ export const adminApi = {
   },
 
   // Admin candidates endpoint
-  getCandidateUsers: async (): Promise<ApiResponse<{ candidates: User[] }>> => {
-    return apiRequest('/client-portal/admin/candidates');
+  getCandidateUsers: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ candidates: User[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/candidates${query}`);
   },
 
-  getAllOrganizations: async (): Promise<ApiResponse<{ organizations: Organization[] }>> => {
-    return apiRequest('/client-portal/admin/organizations');
+  getAllOrganizations: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ organizations: Organization[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/organizations${query}`);
   },
 
-  getAllInterviews: async (): Promise<ApiResponse<{ interviews: Interview[] }>> => {
-    return apiRequest('/client-portal/admin/interviews');
+  getAllInterviews: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ interviews: Interview[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/interviews${query}`);
   },
 
   activateOrganization: async (organizationId: number): Promise<ApiResponse<{ organization: Organization }>> => {
@@ -453,12 +572,30 @@ export const adminApi = {
 
 // HR API functions
 export const hrApi = {
-  getAssignedJobRequests: async (): Promise<ApiResponse<{ jobRequests: JobRequest[] }>> => {
-    return apiRequest('/client-portal/hr/job-requests');
+  getAssignedJobRequests: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ jobRequests: JobRequest[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/hr/job-requests${query}`);
   },
 
-  getCandidateUsers: async (): Promise<ApiResponse<{ candidates: User[] }>> => {
-    return apiRequest('/client-portal/hr/candidates');
+  getCandidateUsers: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ candidates: User[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/hr/candidates${query}`);
   },
 
   pushCandidates: async (
@@ -482,8 +619,19 @@ export const hrApi = {
     return apiRequest('/client-portal/hr/dashboard/stats');
   },
 
-  getAssignedInterviews: async (): Promise<ApiResponse<{ interviews: Interview[] }>> => {
-    return apiRequest('/client-portal/hr/interviews');
+  getAssignedInterviews: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ interviews: Interview[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/hr/interviews${query}`);
   },
 };
 

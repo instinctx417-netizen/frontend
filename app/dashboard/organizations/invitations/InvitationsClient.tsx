@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useDashboard } from '@/app/dashboard/layout';
-import { clientPortalApi, UserInvitation } from '@/lib/clientPortalApi';
+import { clientPortalApi, UserInvitation, PaginationMeta } from '@/lib/clientPortalApi';
+import Pagination from '@/components/Pagination';
 
 export default function InvitationsClient() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -19,6 +20,7 @@ export default function InvitationsClient() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const hasLoadedRef = useRef(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     role: 'member',
@@ -44,7 +46,7 @@ export default function InvitationsClient() {
     }
   }, [isAuthenticated, authLoading, user, currentOrgId, router]);
 
-  const loadInvitations = async () => {
+  const loadInvitations = async (pageToLoad: number = 1) => {
     if (!currentOrgId || isNaN(currentOrgId)) {
       setError('Invalid organization ID');
       setLoading(false);
@@ -53,15 +55,25 @@ export default function InvitationsClient() {
 
     try {
       setLoading(true);
-      const response = await clientPortalApi.getInvitations(currentOrgId);
+      const response = await clientPortalApi.getInvitations(currentOrgId, pageToLoad, 10);
       if (response.success && response.data) {
         setInvitations(response.data.invitations);
+        setPagination(response.data.pagination || null);
+      } else {
+        setInvitations([]);
+        setPagination(null);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load invitations');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadInvitations(newPage);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -187,11 +199,11 @@ export default function InvitationsClient() {
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
-              <table className="w-full min-w-[800px]">
-                <thead>
-                  <tr>
+        <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+          <div className="overflow-x-auto table-scroll">
+            <table className="w-full min-w-[800px]">
+              <thead>
+                <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Role</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Status</th>
@@ -201,13 +213,13 @@ export default function InvitationsClient() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {invitations.map((invitation) => (
                     <tr key={invitation.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {invitation.email}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600 capitalize">
                         {invitation.role.replace(/_/g, ' ')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           invitation.status === 'approved' ? 'dashboard-badge-success' :
                           invitation.status === 'rejected' ? 'bg-red-100 text-red-800' :
@@ -218,7 +230,7 @@ export default function InvitationsClient() {
                           {invitation.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {invitation.createdAt 
                           ? new Date(invitation.createdAt).toLocaleDateString()
                           : 'N/A'}
@@ -228,6 +240,16 @@ export default function InvitationsClient() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="invitations"
+              />
+            )}
           </div>
         )}
       </div>

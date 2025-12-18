@@ -56,6 +56,7 @@
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #F9FAFB;
   --color-bg-tertiary: #F3F4F6;
+  --table-header-bg: #18287533;
   
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
@@ -117,6 +118,10 @@ aside .dashboard-btn-secondary:hover {
 .dashboard-card:hover {
   border-color: var(--color-primary);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.dashboard-table-head-row {
+  background-color: var(--table-header-bg);
 }
 
 .dashboard-badge-success {
@@ -243,4 +248,27 @@ body {
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Table scrollbars - always visible on light backgrounds */
+.table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.9) transparent; /* slate-400 */
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.04); /* subtle track on white */
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.9);
+  border-radius: 9999px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 1);
 }

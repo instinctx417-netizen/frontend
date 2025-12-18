@@ -1,9 +1,10 @@
-'use client';
+ 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { adminApi, PendingInvitation } from '@/lib/clientPortalApi';
+import { adminApi, PendingInvitation, PaginationMeta } from '@/lib/clientPortalApi';
+import Pagination from '@/components/Pagination';
 
 export default function AdminInvitationsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -14,6 +15,8 @@ export default function AdminInvitationsPage() {
   const [loading, setLoading] = useState(true);
   const [showInvitationLink, setShowInvitationLink] = useState<{ id: number; link: string; email: string } | null>(null);
   const hasLoadedRef = useRef(false);
+  const [pendingPagination, setPendingPagination] = useState<PaginationMeta | null>(null);
+  const [approvedPagination, setApprovedPagination] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -32,20 +35,28 @@ export default function AdminInvitationsPage() {
     }
   }, [isAuthenticated, user]);
 
-  const loadInvitations = async () => {
+  const loadInvitations = async (pendingPage: number = 1, approvedPage: number = 1) => {
     try {
       setLoading(true);
       const [pendingResponse, approvedResponse] = await Promise.all([
-        adminApi.getPendingInvitations(),
-        adminApi.getApprovedInvitations(),
+        adminApi.getPendingInvitations(pendingPage, 10),
+        adminApi.getApprovedInvitations(approvedPage, 10),
       ]);
       
       if (pendingResponse.success && pendingResponse.data) {
         setPendingInvitations(pendingResponse.data.invitations);
+        setPendingPagination(pendingResponse.data.pagination || null);
+      } else {
+        setPendingInvitations([]);
+        setPendingPagination(null);
       }
       
       if (approvedResponse.success && approvedResponse.data) {
         setApprovedInvitations(approvedResponse.data.invitations);
+        setApprovedPagination(approvedResponse.data.pagination || null);
+      } else {
+        setApprovedInvitations([]);
+        setApprovedPagination(null);
       }
     } catch (error) {
       console.error('Error loading invitations:', error);
@@ -55,6 +66,20 @@ export default function AdminInvitationsPage() {
   };
 
   const invitations = activeTab === 'pending' ? pendingInvitations : approvedInvitations;
+
+  const currentPagination =
+    activeTab === 'pending' ? pendingPagination : approvedPagination;
+
+  const handlePageChange = (newPage: number) => {
+    if (!currentPagination) return;
+    if (newPage < 1 || newPage > currentPagination.totalPages) return;
+
+    if (activeTab === 'pending') {
+      loadInvitations(newPage, approvedPagination?.page || 1);
+    } else {
+      loadInvitations(pendingPagination?.page || 1, newPage);
+    }
+  };
 
   const handleApproveInvitation = async (invitationId: number) => {
     try {
@@ -69,7 +94,10 @@ export default function AdminInvitationsPage() {
           });
         }
         // Reload both pending and approved lists
-        await loadInvitations();
+        await loadInvitations(
+          pendingPagination?.page || 1,
+          approvedPagination?.page || 1
+        );
       }
     } catch (error) {
       console.error('Error approving invitation:', error);
@@ -84,7 +112,10 @@ export default function AdminInvitationsPage() {
       const response = await adminApi.rejectInvitation(invitationId);
       if (response.success) {
         // Reload pending list (rejected invitations won't show in approved)
-        await loadInvitations();
+        await loadInvitations(
+          pendingPagination?.page || 1,
+          approvedPagination?.page || 1
+        );
       }
     } catch (error) {
       console.error('Error rejecting invitation:', error);
@@ -142,10 +173,10 @@ export default function AdminInvitationsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Organization</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Role</th>
@@ -162,29 +193,29 @@ export default function AdminInvitationsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {invitations.map((invitation) => (
                     <tr key={invitation.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {invitation.email}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {invitation.organizationName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600 capitalize">
                         {invitation.role.replace(/_/g, ' ')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {invitation.invitedByFirstName} {invitation.invitedByLastName}
                       </td>
                       {activeTab === 'pending' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                           {new Date(invitation.expiresAt).toLocaleDateString()}
                         </td>
                       )}
                       {activeTab === 'approved' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                           {(invitation as any).verifiedAt ? new Date((invitation as any).verifiedAt).toLocaleDateString() : 'N/A'}
                         </td>
                       )}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         {activeTab === 'pending' ? (
                           <div className="flex space-x-2">
                             <button
@@ -228,6 +259,16 @@ export default function AdminInvitationsPage() {
                 </tbody>
               </table>
             </div>
+            {currentPagination && (
+              <Pagination
+                currentPage={currentPagination.page}
+                totalPages={currentPagination.totalPages}
+                totalCount={currentPagination.totalCount}
+                pageSize={currentPagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="invitations"
+              />
+            )}
           </div>
         )}
 

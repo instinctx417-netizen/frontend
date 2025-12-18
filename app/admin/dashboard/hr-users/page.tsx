@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { adminApi, HRUser } from '@/lib/clientPortalApi';
+import { adminApi, HRUser, PaginationMeta } from '@/lib/clientPortalApi';
 import Link from 'next/link';
+import Pagination from '@/components/Pagination';
 
 export default function AdminHRUsersPage() {
   const { user, isAuthenticated } = useAuth();
@@ -14,6 +15,7 @@ export default function AdminHRUsersPage() {
   const [showCreateHR, setShowCreateHR] = useState(false);
   const [selectedHRUser, setSelectedHRUser] = useState<HRUser | null>(null);
   const hasLoadedRef = useRef(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,22 +30,32 @@ export default function AdminHRUsersPage() {
 
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadHRUsers();
+      loadHRUsers(1);
     }
   }, [isAuthenticated, user]);
 
-  const loadHRUsers = async () => {
+  const loadHRUsers = async (pageToLoad: number = 1) => {
     try {
       setLoading(true);
-      const response = await adminApi.getHRUsers();
+      const response = await adminApi.getHRUsers(pageToLoad, 10);
       if (response.success && response.data) {
-        setHrUsers(response.data.users);
+        setHrUsers(response.data.users || []);
+        setPagination(response.data.pagination || null);
+      } else {
+        setHrUsers([]);
+        setPagination(null);
       }
     } catch (error) {
       console.error('Error loading HR users:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadHRUsers(newPage);
   };
 
   if (loading) {
@@ -82,10 +94,10 @@ export default function AdminHRUsersPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Name</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Phone</th>
@@ -96,20 +108,20 @@ export default function AdminHRUsersPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {hrUsers.map((hrUser) => (
                     <tr key={hrUser.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {hrUser.firstName} {hrUser.lastName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{hrUser.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{hrUser.phone || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{hrUser.email}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{hrUser.phone || 'N/A'}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {hrUser.createdAt
                           ? new Date(hrUser.createdAt).toLocaleDateString()
                           : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <button 
                           onClick={() => setSelectedHRUser(hrUser)}
-                          className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md"
+                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
                         >
                           View Details
                         </button>
@@ -119,6 +131,16 @@ export default function AdminHRUsersPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="HR users"
+              />
+            )}
           </div>
         )}
 

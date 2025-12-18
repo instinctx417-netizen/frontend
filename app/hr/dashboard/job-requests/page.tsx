@@ -3,18 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { hrApi, clientPortalApi, JobRequest } from '@/lib/clientPortalApi';
-import { User } from '@/lib/api';
-import Link from 'next/link';
-
-interface CandidateUser extends User {
-  fullName?: string;
-  phone?: string;
-  primaryFunction?: string;
-  yearsExperience?: number | string;
-  location?: string;
-  linkedIn?: string;
-}
+import { hrApi, clientPortalApi, JobRequest, PaginationMeta } from '@/lib/clientPortalApi';
+import Pagination from '@/components/Pagination';
 
 export default function HRJobRequestsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -24,6 +14,7 @@ export default function HRJobRequestsPage() {
   const [selectedJobRequest, setSelectedJobRequest] = useState<JobRequest | null>(null);
   const [showJobRequestDetail, setShowJobRequestDetail] = useState(false);
   const hasLoadedRef = useRef(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -38,22 +29,32 @@ export default function HRJobRequestsPage() {
 
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadJobRequests();
+      loadJobRequests(1);
     }
   }, [isAuthenticated, user]);
 
-  const loadJobRequests = async () => {
+  const loadJobRequests = async (pageToLoad: number = 1) => {
     try {
       setLoading(true);
-      const response = await hrApi.getAssignedJobRequests();
+      const response = await hrApi.getAssignedJobRequests(pageToLoad, 10);
       if (response.success && response.data) {
-        setJobRequests(response.data.jobRequests);
+        setJobRequests(response.data.jobRequests || []);
+        setPagination(response.data.pagination || null);
+      } else {
+        setJobRequests([]);
+        setPagination(null);
       }
     } catch (error) {
       console.error('Error loading job requests:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadJobRequests(newPage);
   };
 
   const handleJobRequestClick = async (jobRequestId: number) => {
@@ -93,10 +94,10 @@ export default function HRJobRequestsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Title</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Organization</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Department</th>
@@ -108,16 +109,16 @@ export default function HRJobRequestsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {jobRequests.map((jobRequest) => (
                     <tr key={jobRequest.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {jobRequest.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {(jobRequest as any).organization_name || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.department_name || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-success' :
                           jobRequest.status === 'assigned_to_hr' ? 'dashboard-badge-primary' :
@@ -126,10 +127,10 @@ export default function HRJobRequestsPage() {
                           {jobRequest.status.replace(/_/g, ' ')}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.created_at ? new Date(jobRequest.created_at).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleJobRequestClick(jobRequest.id)}
                           className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
@@ -142,6 +143,16 @@ export default function HRJobRequestsPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="job requests"
+              />
+            )}
           </div>
         )}
 
@@ -279,7 +290,7 @@ function JobRequestDetailModal({
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[500px]">
                 <thead>
                   <tr>
@@ -429,7 +440,7 @@ function PushCandidatesModal({ jobRequestId, onClose }: { jobRequestId: number; 
               </p>
             </div>
 
-            <div className="max-h-[60vh] overflow-y-auto sidebar-scroll">
+            <div className="max-h-[60vh] overflow-y-auto">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
                   <thead className="sticky top-0">

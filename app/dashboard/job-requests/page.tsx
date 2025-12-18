@@ -3,9 +3,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { clientPortalApi, JobRequest } from '@/lib/clientPortalApi';
+import { clientPortalApi, JobRequest, PaginationMeta } from '@/lib/clientPortalApi';
 import Link from 'next/link';
 import { useDashboard } from '../layout';
+import Pagination from '@/components/Pagination';
 
 export default function JobRequestsPage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -15,6 +16,7 @@ export default function JobRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOrg, setSelectedOrg] = useState<any | null>(null);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function JobRequestsPage() {
         if (orgs.length > 0) {
           const firstOrg = orgs[0];
           setSelectedOrg(firstOrg);
-          await loadJobRequests(firstOrg.organization_id || firstOrg.id);
+          await loadJobRequests(firstOrg.organization_id || firstOrg.id, 1);
         }
       }
     } catch (err: any) {
@@ -48,11 +50,15 @@ export default function JobRequestsPage() {
     }
   };
 
-  const loadJobRequests = async (organizationId: number) => {
+  const loadJobRequests = async (organizationId: number, pageToLoad: number = 1) => {
     try {
-      const response = await clientPortalApi.getJobRequests(organizationId);
+      const response = await clientPortalApi.getJobRequests(organizationId, undefined, pageToLoad, 10);
       if (response.success && response.data) {
         setJobRequests(response.data.jobRequests);
+        setPagination(response.data.pagination || null);
+      } else {
+        setJobRequests([]);
+        setPagination(null);
       }
     } catch (err: any) {
       console.error('Failed to load job requests:', err);
@@ -62,6 +68,14 @@ export default function JobRequestsPage() {
   const handleJobRequestClick = (jobRequestId: number) => {
     setSelectedJobRequestId(jobRequestId);
     router.push('/dashboard/job-requests/detail');
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination || !selectedOrg) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    const orgId = selectedOrg.organization_id || selectedOrg.id;
+    if (!orgId) return;
+    loadJobRequests(orgId, newPage);
   };
 
   if (authLoading || loading) {
@@ -121,10 +135,10 @@ export default function JobRequestsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Title</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Department</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Priority</th>
@@ -137,16 +151,16 @@ export default function JobRequestsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {jobRequests.map((jobRequest) => (
                     <tr key={jobRequest.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {jobRequest.title}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.department_name || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 capitalize">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600 capitalize">
                         {jobRequest.priority}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-2 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           jobRequest.status === 'hired' ? 'dashboard-badge-success' :
                           jobRequest.status === 'candidates_delivered' ? 'dashboard-badge-primary' :
@@ -156,13 +170,13 @@ export default function JobRequestsPage() {
                           {jobRequest.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.candidateCount || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {jobRequest.created_at ? new Date(jobRequest.created_at).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleJobRequestClick(jobRequest.id)}
                           className="dashboard-btn-primary px-4 py-2 rounded-md font-medium"
@@ -175,6 +189,16 @@ export default function JobRequestsPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="job requests"
+              />
+            )}
           </div>
         )}
       </div>

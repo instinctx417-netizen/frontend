@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { hrApi } from '@/lib/clientPortalApi';
+import { hrApi, PaginationMeta } from '@/lib/clientPortalApi';
 import { User } from '@/lib/api';
-import Link from 'next/link';
+import Pagination from '@/components/Pagination';
 
 interface CandidateUser extends User {
   fullName?: string;
@@ -23,6 +23,7 @@ export default function HRCandidatesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateUser | null>(null);
   const hasLoadedRef = useRef(false);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,22 +38,32 @@ export default function HRCandidatesPage() {
 
     if (!hasLoadedRef.current) {
       hasLoadedRef.current = true;
-      loadCandidates();
+      loadCandidates(1);
     }
   }, [isAuthenticated, user]);
 
-  const loadCandidates = async () => {
+  const loadCandidates = async (pageToLoad: number = 1) => {
     try {
       setLoading(true);
-      const response = await hrApi.getCandidateUsers();
+      const response = await hrApi.getCandidateUsers(pageToLoad, 10);
       if (response.success && response.data) {
         setCandidates(response.data.candidates || []);
+        setPagination(response.data.pagination || null);
+      } else {
+        setCandidates([]);
+        setPagination(null);
       }
     } catch (error) {
       console.error('Error loading candidates:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (!pagination) return;
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    loadCandidates(newPage);
   };
 
   if (loading) {
@@ -80,10 +91,10 @@ export default function HRCandidatesPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Name</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Phone</th>
@@ -96,17 +107,17 @@ export default function HRCandidatesPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {candidates.map((candidate) => (
                     <tr key={candidate.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {candidate.fullName || `${candidate.firstName} ${candidate.lastName}`}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{candidate.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{candidate.phone || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{candidate.primaryFunction || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{candidate.email}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{candidate.phone || 'N/A'}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{candidate.primaryFunction || 'N/A'}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {candidate.yearsExperience ? `${candidate.yearsExperience} years` : 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{candidate.location || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">{candidate.location || 'N/A'}</td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
                           {candidate.linkedIn && (
                             <a
@@ -131,6 +142,16 @@ export default function HRCandidatesPage() {
                 </tbody>
               </table>
             </div>
+            {pagination && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                pageSize={pagination.limit}
+                onPageChange={handlePageChange}
+                itemLabel="candidates"
+              />
+            )}
           </div>
         )}
 

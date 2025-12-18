@@ -124,13 +124,13 @@ export default function AnalyticsPage() {
         {/* Department Stats */}
         {analytics.departmentStats && analytics.departmentStats.length > 0 && (
           <div className="dashboard-card rounded-lg overflow-hidden">
-            <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+            <div className="px-6 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Department Performance</h2>
             </div>
-            <div className="overflow-x-auto sidebar-scroll">
+            <div className="overflow-x-auto table-scroll">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr>
+                  <tr className="dashboard-table-head-row">
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Department</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Jobs</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Candidates</th>
@@ -142,22 +142,22 @@ export default function AnalyticsPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {analytics.departmentStats.map((dept: any) => (
                     <tr key={dept.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-black">
                         {dept.name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {dept.job_count || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {dept.candidate_count || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {dept.interview_count || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold" style={{ color: 'var(--color-success)' }}>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm font-semibold" style={{ color: 'var(--color-success)' }}>
                         {dept.hired_count || 0}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {dept.avg_days_to_fill != null ? Number(dept.avg_days_to_fill).toFixed(1) : 'N/A'}
                       </td>
                     </tr>
