@@ -23,7 +23,6 @@ export default function AdminCandidatesPage() {
   const [candidates, setCandidates] = useState<CandidateUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateUser | null>(null);
   const hasLoadedRef = useRef(false);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
@@ -85,8 +84,15 @@ export default function AdminCandidatesPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-black">Candidates</h1>
+          <button
+            type="button"
+            onClick={() => router.push('/admin/dashboard/candidates/new')}
+            className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
+          >
+            + Add Candidate
+          </button>
         </div>
 
         {error && (
@@ -139,12 +145,14 @@ export default function AdminCandidatesPage() {
                               LinkedIn
                             </a>
                           )}
-                          <button 
-                            onClick={() => setSelectedCandidate(candidate)}
+                          <a
+                            href={`/admin/dashboard/candidates/detail?id=${candidate.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
                           >
                             View Details
-                          </button>
+                          </a>
                         </div>
                       </td>
                     </tr>
@@ -165,90 +173,6 @@ export default function AdminCandidatesPage() {
           </div>
         )}
 
-        {/* Candidate Details Modal */}
-        {selectedCandidate && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
-                <h2 className="text-2xl font-bold text-black">Candidate Details</h2>
-                <button
-                  onClick={() => setSelectedCandidate(null)}
-                  className="text-gray-600 hover:text-black transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 6L6 18"></path>
-                    <path d="M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
-                    <p className="text-base text-black font-medium">
-                      {selectedCandidate.fullName || `${selectedCandidate.firstName} ${selectedCandidate.lastName}`}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Email</label>
-                    <p className="text-base text-black">{selectedCandidate.email}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Phone</label>
-                    <p className="text-base text-black">{selectedCandidate.phone || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Primary Function</label>
-                    <p className="text-base text-black">{selectedCandidate.primaryFunction || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Years of Experience</label>
-                    <p className="text-base text-black">
-                      {selectedCandidate.yearsExperience ? `${selectedCandidate.yearsExperience} years` : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Location</label>
-                    <p className="text-base text-black">{selectedCandidate.location || 'N/A'}</p>
-                  </div>
-                  {selectedCandidate.linkedIn && (
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-500 mb-1">LinkedIn</label>
-                      <a
-                        href={selectedCandidate.linkedIn}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base text-blue-600 hover:underline"
-                      >
-                        {selectedCandidate.linkedIn}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-6 border-t border-gray-200 flex justify-end">
-                <button
-                  onClick={() => setSelectedCandidate(null)}
-                  className="px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors rounded-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

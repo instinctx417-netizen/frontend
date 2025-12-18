@@ -1,20 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/contexts/ToastContext';
 
 interface CandidateFormProps {
   onBack: () => void;
+  contextRole?: 'admin' | 'hr';
 }
 
-export default function CandidateForm({ onBack }: CandidateFormProps) {
-  const { register } = useAuth();
+export default function CandidateForm({
+  onBack,
+  contextRole,
+}: CandidateFormProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const isInternal = !!contextRole;
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -38,6 +42,8 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
     whyInstinctX: '',
     startupExperience: '',
     resume: null as File | null,
+    profileImage: null as File | null,
+    supportingDocs: [] as File[],
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -46,9 +52,55 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, resume: e.target.files![0] }));
+    const { name, files } = e.target;
+    if (!files || !files[0]) return;
+
+    const file = files[0];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    const imageExtensions = ['png', 'jpg', 'jpeg', 'tif', 'tiff'];
+    const docExtensions = ['png', 'jpg', 'jpeg', 'tif', 'tiff', 'pdf'];
+
+    if (name === 'profileImage') {
+      // Profile picture: images only (no PDF)
+      if (!extension || !imageExtensions.includes(extension)) {
+        setError('Profile picture must be an image (PNG, JPG, JPEG, TIFF).');
+        return;
+      }
+      setError('');
+      setFormData(prev => ({ ...prev, profileImage: file }));
+      return;
     }
+
+    if (name === 'resume') {
+      // Resume: image or PDF
+      if (!extension || !docExtensions.includes(extension)) {
+        setError('Resume must be PNG, JPG, JPEG, TIFF, or PDF.');
+        return;
+      }
+      setError('');
+      setFormData(prev => ({ ...prev, resume: file }));
+      return;
+    }
+
+    if (name === 'supportingDocs') {
+      if (!extension || !docExtensions.includes(extension)) {
+        setError('Documents must be PNG, JPG, JPEG, TIFF, or PDF.');
+        return;
+      }
+      setError('');
+      setFormData(prev => ({
+        ...prev,
+        supportingDocs: [...prev.supportingDocs, file],
+      }));
+    }
+  };
+
+  const handleRemoveSupportingDoc = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      supportingDocs: prev.supportingDocs.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,38 +118,67 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
       return;
     }
 
+    // Build multipart form data for candidate registration with files
+    const form = new FormData();
+    form.append('email', formData.email);
+    form.append('password', formData.password);
+    form.append('firstName', formData.firstName);
+    form.append('lastName', formData.lastName);
+    form.append('userType', 'candidate');
+    form.append('fullName', formData.fullName);
+    form.append('location', formData.location);
+    form.append('country', formData.country);
+    form.append('timezone', formData.timezone);
+    form.append('primaryFunction', formData.primaryFunction);
+    form.append('yearsExperience', formData.yearsExperience);
+    form.append('currentRole', formData.currentRole);
+    form.append('education', formData.education);
+    form.append('englishProficiency', formData.englishProficiency);
+    form.append('availability', formData.availability);
+    form.append('linkedIn', formData.linkedIn);
+    form.append('portfolio', formData.portfolio);
+    form.append('whyInstinctX', formData.whyInstinctX);
+    form.append('startupExperience', formData.startupExperience);
+    form.append('phone', formData.phone);
+
+    if (formData.profileImage) {
+      form.append('profileImage', formData.profileImage);
+    }
+    if (formData.resume) {
+      form.append('resume', formData.resume);
+    }
+    formData.supportingDocs.forEach(file => {
+      form.append('supportingDocs', file);
+    });
+
     setLoading(true);
     try {
-      await register({
-        email: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        userType: 'candidate',
-        fullName: formData.fullName,
-        location: formData.location,
-        country: formData.country,
-        timezone: formData.timezone,
-        primaryFunction: formData.primaryFunction,
-        yearsExperience: formData.yearsExperience,
-        currentRole: formData.currentRole,
-        education: formData.education,
-        englishProficiency: formData.englishProficiency,
-        availability: formData.availability,
-        linkedIn: formData.linkedIn,
-        portfolio: formData.portfolio,
-        whyInstinctX: formData.whyInstinctX,
-        startupExperience: formData.startupExperience,
-        phone: formData.phone,
-        // resumePath would be set after file upload
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${baseUrl}/auth/register-candidate`, {
+        method: 'POST',
+        body: form,
       });
-      
-      // Show success toast and go to home
-      showToast('Application submitted successfully! Your account has been created for office use.', 'success');
-      setLoading(false);
-      router.push('/');
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      showToast(
+        isInternal
+          ? 'Candidate added successfully.'
+          : 'Application submitted successfully! Your account has been created for office use.',
+        'success'
+      );
+
+      if (isInternal) {
+        router.push(contextRole === 'admin' ? '/admin/dashboard/candidates' : '/hr/dashboard/candidates');
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
+    } finally {
       setLoading(false);
     }
   };
@@ -124,7 +205,7 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
           </svg>
-          Back to selection
+          {isInternal ? 'Back to candidates' : 'Back to selection'}
         </button>
 
         <div className="mb-12">
@@ -147,18 +228,24 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
               </svg>
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-black mb-2">Accelerator Application</h1>
-              <p className="text-gray-600 font-light">Apply for elite operator training</p>
+              <h1 className="text-4xl font-bold text-black mb-2">
+                {isInternal ? 'Add Candidate' : 'Accelerator Application'}
+              </h1>
+              <p className="text-gray-600 font-light">
+                {isInternal ? 'Create a new candidate profile' : 'Apply for elite operator training'}
+              </p>
             </div>
           </div>
-          <div className="bg-gray-50 p-6 border-l-4 border-black">
-            <p className="text-sm font-light text-gray-700 mb-3">
-              The InstinctX Accelerator is an 8-week intensive program that transforms elite talent into startup-ready operators. Upon completion and passing, you&apos;re guaranteed placement with our client startups.
-            </p>
-            <p className="text-sm font-light text-gray-700">
-              <strong className="font-semibold">Acceptance Rate:</strong> Only 50 candidates per month. Only 15 graduate with placement.
-            </p>
-          </div>
+          {!isInternal && (
+            <div className="bg-gray-50 p-6 border-l-4 border-black">
+              <p className="text-sm font-light text-gray-700 mb-3">
+                The InstinctX Accelerator is an 8-week intensive program that transforms elite talent into startup-ready operators. Upon completion and passing, you&apos;re guaranteed placement with our client startups.
+              </p>
+              <p className="text-sm font-light text-gray-700">
+                <strong className="font-semibold">Acceptance Rate:</strong> Only 50 candidates per month. Only 15 graduate with placement.
+              </p>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -237,7 +324,7 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="fullName" className="text-sm font-medium text-black mb-2 block">
-                  Full Name *
+                  {isInternal ? 'Name' : 'Full Name'} *
                 </label>
                 <input
                   type="text"
@@ -429,7 +516,9 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                   onChange={handleChange}
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >
-                  <option value="">When can you start?</option>
+                  <option value="">
+                    {isInternal ? 'Availability to start' : 'When can you start?'}
+                  </option>
                   <option value="immediately">Immediately</option>
                   <option value="2weeks">2 weeks notice</option>
                   <option value="1month">1 month notice</option>
@@ -446,7 +535,11 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                   type="url"
                   id="linkedIn"
                   name="linkedIn"
-                  placeholder="linkedin.com/in/yourprofile"
+                  placeholder={
+                    contextRole
+                      ? 'Candidate LinkedIn URL'
+                      : 'linkedin.com/in/yourprofile'
+                  }
                   value={formData.linkedIn}
                   onChange={handleChange}
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
@@ -460,7 +553,11 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                   type="url"
                   id="portfolio"
                   name="portfolio"
-                  placeholder="yourportfolio.com"
+                  placeholder={
+                    contextRole
+                      ? 'Candidate portfolio / website URL'
+                      : 'yourportfolio.com'
+                  }
                   value={formData.portfolio}
                   onChange={handleChange}
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
@@ -469,18 +566,26 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
             </div>
           </div>
 
-          {/* About You */}
+          {/* About section */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black border-b border-gray-200 pb-3">About You</h2>
+            <h2 className="text-2xl font-bold text-black border-b border-gray-200 pb-3">
+              {isInternal ? 'About Candidate' : 'About You'}
+            </h2>
             <div>
               <label htmlFor="whyInstinctX" className="text-sm font-medium text-black mb-2 block">
-                Why do you want to join the InstinctX Accelerator? *
+                {isInternal
+                  ? 'Candidate summary / motivation *'
+                  : 'Why do you want to join the InstinctX Accelerator? *'}
               </label>
               <textarea
                 id="whyInstinctX"
                 name="whyInstinctX"
                 required
-                placeholder="Tell us what excites you about this opportunity and what you hope to gain from the program..."
+                placeholder={
+                  isInternal
+                    ? 'Summarize candidate motivation, strengths, and overall fit for the accelerator...'
+                    : 'Tell us what excites you about this opportunity and what you hope to gain from the program...'
+                }
                 rows={4}
                 value={formData.whyInstinctX}
                 onChange={handleChange}
@@ -500,6 +605,52 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                 onChange={handleChange}
                 className="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
               />
+            </div>
+          </div>
+
+          {/* Profile Picture */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-black border-b border-gray-200 pb-3">Profile Picture</h2>
+            <div>
+              <label htmlFor="profileImage" className="text-sm font-medium text-black mb-2 block">
+                Upload Profile Picture
+              </label>
+              <div className="mt-2">
+                <label
+                  htmlFor="profileImage"
+                  className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded appearance-none cursor-pointer hover:border-black focus:outline-none"
+                >
+                  <span className="flex items-center space-x-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-6 h-6 text-gray-600"
+                    >
+                      <circle cx="12" cy="7" r="4"></circle>
+                      <path d="M5.5 21a7.5 7.5 0 0 1 13 0"></path>
+                    </svg>
+                    <span className="font-medium text-gray-600">
+                      {formData.profileImage ? formData.profileImage.name : 'Click to upload profile picture'}
+                    </span>
+                  </span>
+                  <input
+                    type="file"
+                    id="profileImage"
+                    name="profileImage"
+                    accept=".png,.jpg,.jpeg,.tif,.tiff"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Allowed: PNG, JPG, JPEG, TIFF (Max 5MB)</p>
             </div>
           </div>
 
@@ -541,13 +692,80 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                     id="resume"
                     name="resume"
                     required
-                    accept=".pdf,.doc,.docx"
+                    accept=".png,.jpg,.jpeg,.tif,.tiff,.pdf"
                     onChange={handleFileChange}
                     className="hidden"
                   />
                 </label>
               </div>
-              <p className="text-xs text-gray-500 mt-2">PDF, DOC, or DOCX (Max 5MB)</p>
+              <p className="text-xs text-gray-500 mt-2">Allowed: PNG, JPG, JPEG, TIFF, PDF (Max 5MB)</p>
+            </div>
+          </div>
+
+          {/* Supporting Documents */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-black border-b border-gray-200 pb-3">Supporting Documents</h2>
+            <div>
+              <label htmlFor="supportingDocs" className="text-sm font-medium text-black mb-2 block">
+                Upload Additional Documents
+              </label>
+              <div className="mt-2">
+                <label
+                  htmlFor="supportingDocs"
+                  className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded appearance-none cursor-pointer hover:border-black focus:outline-none"
+                >
+                  <span className="flex items-center space-x-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-6 h-6 text-gray-600"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" x2="12" y1="3" y2="15"></line>
+                    </svg>
+                    <span className="font-medium text-gray-600">
+                      {formData.supportingDocs.length > 0
+                        ? `${formData.supportingDocs.length} file(s) selected`
+                        : 'Click to upload additional documents'}
+                    </span>
+                  </span>
+                  <input
+                    type="file"
+                    id="supportingDocs"
+                    name="supportingDocs"
+                    accept=".png,.jpg,.jpeg,.tif,.tiff,.pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Allowed: PNG, JPG, JPEG, TIFF, PDF (Max 5MB per file)
+              </p>
+              {formData.supportingDocs.length > 0 && (
+                <ul className="mt-2 text-xs text-gray-600 space-y-1">
+                  {formData.supportingDocs.map((f, idx) => (
+                    <li key={idx} className="flex items-center justify-between">
+                      <span className="truncate">{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSupportingDoc(idx)}
+                        className="ml-2 text-red-500 hover:text-red-700 font-medium"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -556,9 +774,15 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-10 w-full md:w-auto px-8 py-4 bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={[
+                'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium',
+                'h-10 w-full md:w-auto px-8 py-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+                isInternal
+                  ? 'dashboard-btn-primary'
+                  : 'bg-black text-white hover:bg-gray-800 transition-colors',
+              ].join(' ')}
             >
-              {loading ? 'Submitting...' : 'Submit Application'}
+              {loading ? 'Submitting...' : isInternal ? 'Add Candidate' : 'Submit Application'}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -575,9 +799,13 @@ export default function CandidateForm({ onBack }: CandidateFormProps) {
                 <path d="m12 5 7 7-7 7"></path>
               </svg>
             </button>
-            <p className="text-sm text-gray-500 font-light mt-4">
-              Applications reviewed within 5-7 business days. Selected candidates will receive platform access for assessments.
-            </p>
+            {/* Optional public-site note; hidden for admin/HR contexts */}
+            {!isInternal ? (
+              <p className="text-sm text-gray-500 font-light mt-4">
+                Applications reviewed within 5-7 business days. Selected candidates will receive platform
+                access for assessments.
+              </p>
+            ) : null}
           </div>
         </form>
       </div>

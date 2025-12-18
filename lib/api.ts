@@ -10,6 +10,7 @@ export interface ApiResponse<T> {
 export interface User {
   id: number;
   email: string;
+  phone?: string;
   firstName: string;
   lastName: string;
   userType: 'client' | 'candidate' | 'admin' | 'hr';
@@ -20,6 +21,24 @@ export interface User {
   industry?: string;
   companySize?: string;
   // Other profile fields can be added as needed
+  // Candidate-specific fields
+  fullName?: string;
+  location?: string;
+  country?: string;
+  timezone?: string;
+  primaryFunction?: string;
+  yearsExperience?: string | number;
+  currentRole?: string;
+  education?: string;
+  englishProficiency?: string;
+  availability?: string;
+  linkedIn?: string;
+  portfolio?: string;
+  whyInstinctX?: string;
+  startupExperience?: string;
+  resumePath?: string;
+  profilePicPath?: string;
+  candidateDocuments?: string[] | any;
 }
 
 export interface AuthResponse {

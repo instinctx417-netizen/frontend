@@ -231,6 +231,11 @@ export const clientPortalApi = {
     return apiRequest(`/client-portal/candidates/${id}`);
   },
 
+  // Candidate user profile (admin & HR shared)
+  getCandidateUserDetails: async (id: number): Promise<ApiResponse<{ candidate: User }>> => {
+    return apiRequest(`/client-portal/candidate-users/${id}`);
+  },
+
   updateCandidateStatus: async (id: number, status: string): Promise<ApiResponse<{ candidate: Candidate }>> => {
     return apiRequest(`/client-portal/candidates/${id}/status`, {
       method: 'PUT',
