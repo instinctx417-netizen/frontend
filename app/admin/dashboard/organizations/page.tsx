@@ -145,7 +145,7 @@ export default function AdminOrganizationsPage() {
                         <button
                           onClick={() => handleToggleStatus(org.id || org.organization_id, org.status || 'inactive')}
                           disabled={updatingOrgId === (org.id || org.organization_id)}
-                          className={`px-4 py-2 font-medium transition-colors rounded-md whitespace-nowrap min-w-[112px] ${
+                          className={`px-4 py-2 font-medium transition-colors rounded-md whitespace-nowrap min-w-[112px] cursor-pointer ${
                             org.status === 'active'
                               ? 'bg-gray-200 text-black hover:bg-gray-300'
                               : 'dashboard-btn-primary'
@@ -159,7 +159,7 @@ export default function AdminOrganizationsPage() {
                         </button>
                         <button 
                           onClick={() => setSelectedOrganization(org)}
-                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
+                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md cursor-pointer"
                         >
                           View Details
                         </button>

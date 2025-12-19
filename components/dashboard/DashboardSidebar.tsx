@@ -83,6 +83,16 @@ export default function DashboardSidebar({
         </svg>
       ),
     },
+    {
+      label: 'Notifications',
+      href: '/dashboard/notifications',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      ),
+    },
   ];
 
   // Admin navigation items
@@ -165,6 +175,16 @@ export default function DashboardSidebar({
         </svg>
       ),
     },
+    {
+      label: 'Notifications',
+      href: '/dashboard/notifications',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      ),
+    },
   ];
 
   // HR navigation items
@@ -215,11 +235,37 @@ export default function DashboardSidebar({
         </svg>
       ),
     },
+    {
+      label: 'Notifications',
+      href: '/dashboard/notifications',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      ),
+    },
   ];
 
   const getNavItems = () => {
-    if (user?.userType === 'admin') return adminNavItems;
-    if (user?.userType === 'hr') return hrNavItems;
+    if (user?.userType === 'admin') {
+      // Update notifications href for admin
+      const adminItems = adminNavItems.map(item => 
+        item.label === 'Notifications' 
+          ? { ...item, href: '/admin/dashboard/notifications' }
+          : item
+      );
+      return adminItems;
+    }
+    if (user?.userType === 'hr') {
+      // Update notifications href for HR
+      const hrItems = hrNavItems.map(item => 
+        item.label === 'Notifications' 
+          ? { ...item, href: '/hr/dashboard/notifications' }
+          : item
+      );
+      return hrItems;
+    }
     
     if (user?.userType === 'client' && user?.role !== 'coo') {
       return clientNavItems.filter(item => item.label !== 'Invitations');
@@ -341,7 +387,7 @@ export default function DashboardSidebar({
               {onInviteTeam && canInviteTeam && (
                 <button
                   onClick={onInviteTeam}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-md dashboard-btn-secondary"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-md dashboard-btn-secondary cursor-pointer"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -220,13 +220,13 @@ export default function AdminInvitationsPage() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleApproveInvitation(invitation.id)}
-                              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
+                              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
                             >
                               Approve
                             </button>
                             <button
                               onClick={() => handleRejectInvitation(invitation.id)}
-                              className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md"
+                              className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md cursor-pointer"
                             >
                               Reject
                             </button>
@@ -248,7 +248,7 @@ export default function AdminInvitationsPage() {
                                 alert('Failed to get invitation link');
                               }
                             }}
-                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
                           >
                             View Link
                           </button>

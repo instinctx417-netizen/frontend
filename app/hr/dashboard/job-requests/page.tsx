@@ -131,12 +131,12 @@ export default function HRJobRequestsPage() {
                         {jobRequest.created_at ? new Date(jobRequest.created_at).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleJobRequestClick(jobRequest.id)}
-                          className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
-                        >
-                          View Details
-                        </button>
+                          <button
+                            onClick={() => handleJobRequestClick(jobRequest.id)}
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
+                          >
+                            View Details
+                          </button>
                       </td>
                     </tr>
                   ))}

@@ -121,7 +121,7 @@ export default function AdminHRUsersPage() {
                       <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <button 
                           onClick={() => setSelectedHRUser(hrUser)}
-                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
+                          className="px-4 py-2 dashboard-btn-primary font-medium rounded-md cursor-pointer"
                         >
                           View Details
                         </button>

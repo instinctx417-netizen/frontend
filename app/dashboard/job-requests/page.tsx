@@ -179,7 +179,7 @@ export default function JobRequestsPage() {
                       <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleJobRequestClick(jobRequest.id)}
-                          className="dashboard-btn-primary px-4 py-2 rounded-md font-medium"
+                          className="dashboard-btn-primary px-4 py-2 rounded-md font-medium cursor-pointer"
                         >
                           View Details
                         </button>

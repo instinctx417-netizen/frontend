@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,6 +18,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       {!isDashboardRoute && <Header />}
       {children}
       {!isDashboardRoute && <ConditionalFooter />}
+      <NotificationBell />
     </div>
   );
 }

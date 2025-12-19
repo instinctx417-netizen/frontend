@@ -195,7 +195,7 @@ export default function ClientInterviewsPage() {
                               router.push(`/dashboard/job-requests/detail?jobRequestId=${jobRequestId}`);
                             }
                           }}
-                          className="dashboard-btn-primary px-3 py-2 rounded text-xs font-medium"
+                          className="dashboard-btn-primary px-3 py-2 rounded text-xs font-medium cursor-pointer disabled:cursor-not-allowed"
                           disabled={!interview.jobRequestId && !(interview as any).job_request_id}
                         >
                           View Job Request

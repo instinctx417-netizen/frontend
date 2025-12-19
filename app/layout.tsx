@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SocketProvider } from "@/contexts/SocketContext";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
 const poppins = Poppins({
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body className={`${poppins.variable} font-sans antialiased`}>
         <ToastProvider>
           <AuthProvider>
-            <ConditionalLayout>
+            <SocketProvider>
+              <ConditionalLayout>
         {children}
-            </ConditionalLayout>
+              </ConditionalLayout>
+            </SocketProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

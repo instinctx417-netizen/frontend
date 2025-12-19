@@ -133,7 +133,8 @@ export interface Notification {
   relatedEntityId?: number;
   read: boolean;
   readAt?: string;
-  createdAt: string;
+  created_at: string;
+  createdAt?: string;
 }
 
 /**
@@ -354,10 +355,27 @@ export const clientPortalApi = {
   },
 
   // Notifications
-  getNotifications: async (options?: { unreadOnly?: boolean; limit?: number }): Promise<ApiResponse<{ notifications: Notification[] }>> => {
+  createNotification: async (data: {
+    userId: number;
+    type: string;
+    title: string;
+    message: string;
+    relatedEntityType?: string;
+    relatedEntityId?: number;
+  }): Promise<ApiResponse<{ notification: Notification }>> => {
+    return apiRequest('/client-portal/notifications', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getNotifications: async (
+    options?: { unreadOnly?: boolean; limit?: number; page?: number }
+  ): Promise<ApiResponse<{ notifications: Notification[]; pagination?: PaginationMeta }>> => {
     const params = new URLSearchParams();
     if (options?.unreadOnly) params.append('unreadOnly', 'true');
     if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.page) params.append('page', options.page.toString());
     const query = params.toString();
     return apiRequest(`/client-portal/notifications${query ? `?${query}` : ''}`);
   },
@@ -375,12 +393,6 @@ export const clientPortalApi = {
   markAllNotificationsAsRead: async (): Promise<ApiResponse<{ count: number }>> => {
     return apiRequest('/client-portal/notifications/read-all', {
       method: 'PUT',
-    });
-  },
-
-  deleteNotification: async (id: number): Promise<ApiResponse<void>> => {
-    return apiRequest(`/client-portal/notifications/${id}`, {
-      method: 'DELETE',
     });
   },
 

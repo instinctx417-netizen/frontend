@@ -169,7 +169,7 @@ export default function AdminInterviewsPage() {
                               router.push(`/admin/dashboard/job-requests?id=${jobRequestId}`);
                             }
                           }}
-                          className="dashboard-btn-primary px-3 py-2 rounded text-xs font-medium"
+                          className="dashboard-btn-primary px-3 py-2 rounded text-xs font-medium cursor-pointer disabled:cursor-not-allowed"
                           disabled={!interview.jobRequestId && !(interview as any).job_request_id}
                         >
                           View Job Request

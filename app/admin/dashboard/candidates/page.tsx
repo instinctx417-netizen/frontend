@@ -89,7 +89,7 @@ export default function AdminCandidatesPage() {
           <button
             type="button"
             onClick={() => router.push('/admin/dashboard/candidates/new')}
-            className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
+            className="px-4 py-2 dashboard-btn-primary font-medium rounded-md cursor-pointer"
           >
             + Add Candidate
           </button>
@@ -140,7 +140,7 @@ export default function AdminCandidatesPage() {
                               href={candidate.linkedIn}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md"
+                              className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md cursor-pointer"
                             >
                               LinkedIn
                             </a>
@@ -149,7 +149,7 @@ export default function AdminCandidatesPage() {
                             href={`/admin/dashboard/candidates/detail?id=${candidate.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-4 py-2 dashboard-btn-primary font-medium rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium rounded-md cursor-pointer"
                           >
                             View Details
                           </a>

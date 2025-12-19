@@ -171,13 +171,13 @@ export default function AdminJobRequestsPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleJobRequestClick(jobRequest.id)}
-                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
                           >
                             View Details
                           </button>
                           <button
                             onClick={() => setShowAssignHR({ jobRequestId: jobRequest.id })}
-                            className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[112px]"
+                            className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md whitespace-nowrap min-w-[112px] cursor-pointer"
                           >
                             {jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId ? 'Change HR' : 'Assign HR'}
                           </button>
