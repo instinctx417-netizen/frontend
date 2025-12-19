@@ -19,7 +19,7 @@ export default function Pagination({
   onPageChange,
   itemLabel = 'items',
 }: PaginationProps) {
-  if (totalPages <= 1) return null;
+  // Always display pagination, even if there's only one page or no data
 
   const handleChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
@@ -28,6 +28,11 @@ export default function Pagination({
 
   const getPageNumbers = (): (number | 'ellipsis')[] => {
     const pages: (number | 'ellipsis')[] = [];
+
+    // Handle edge cases: 0 or 1 page
+    if (totalPages <= 0) {
+      return [1]; // Show at least page 1 even if no data
+    }
 
     if (totalPages <= 7) {
       for (let p = 1; p <= totalPages; p++) {
@@ -70,7 +75,7 @@ export default function Pagination({
 
   return (
     <div
-      className="flex items-center justify-between px-6 py-4 border-t border-gray-200 text-sm"
+      className="flex items-center justify-between px-10 py-4 border-t border-gray-200 text-sm"
       style={{ color: 'var(--color-text-secondary)' }}
     >
       <div>

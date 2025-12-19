@@ -313,11 +313,11 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50" ref={dropdownRef}>
+    <div className="fixed bottom-5 right-5 z-50" ref={dropdownRef}>
       {/* Notification Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
+        className="relative w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
         style={{
           background: 'var(--gradient-primary)',
           color: 'white',
@@ -326,8 +326,8 @@ export default function NotificationBell() {
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
