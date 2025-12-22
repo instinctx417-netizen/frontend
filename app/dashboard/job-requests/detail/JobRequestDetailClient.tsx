@@ -146,7 +146,7 @@ export default function JobRequestDetailClient() {
 
         {/* Header */}
         <div className="bg-white rounded-lg border border-gray-200 p-8 mb-6">
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-black mb-2">{jobRequest.title}</h1>
               {jobRequest.departmentName && (
@@ -242,45 +242,47 @@ export default function JobRequestDetailClient() {
                 ) : (
                   candidates.map((candidate) => (
                     <div key={candidate.id} className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-black mb-1">{candidate.name}</h3>
-                          {candidate.email && (
-                            <p className="text-sm text-gray-600">{candidate.email}</p>
+                      <div className="flex items-center justify-between gap-4">
+                        <h3 className="text-lg font-semibold text-black">{candidate.name}</h3>
+                        <div className="flex items-center gap-3">
+                          {candidate.userId && (
+                            <a
+                              href={`/dashboard/candidates/detail?id=${candidate.userId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer inline-flex items-center gap-2"
+                            >
+                              <span>View Profile</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                              </svg>
+                            </a>
                           )}
+                          <select
+                            value={candidate.status}
+                            onChange={(e) => handleCandidateStatusChange(candidate.id, e.target.value)}
+                            className="px-3 py-2 text-sm rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-2 focus:ring-black h-[42px]"
+                          >
+                            <option value="delivered">Delivered</option>
+                            <option value="viewed">Viewed</option>
+                            <option value="shortlisted">Shortlisted</option>
+                            <option value="interview_scheduled">Interview Scheduled</option>
+                            <option value="selected">Selected</option>
+                            <option value="rejected">Rejected</option>
+                          </select>
                         </div>
-                        <select
-                          value={candidate.status}
-                          onChange={(e) => handleCandidateStatusChange(candidate.id, e.target.value)}
-                          className="px-3 py-1 text-sm rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-2 focus:ring-black"
-                        >
-                          <option value="delivered">Delivered</option>
-                          <option value="viewed">Viewed</option>
-                          <option value="shortlisted">Shortlisted</option>
-                          <option value="interview_scheduled">Interview Scheduled</option>
-                          <option value="selected">Selected</option>
-                          <option value="rejected">Rejected</option>
-                        </select>
-                      </div>
-                      {candidate.profileSummary && (
-                        <p className="text-gray-700 mb-4">{candidate.profileSummary}</p>
-                      )}
-                      <div className="flex gap-4 text-sm">
-                        {candidate.linkedinUrl && (
-                          <a href={candidate.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            LinkedIn
-                          </a>
-                        )}
-                        {candidate.portfolioUrl && (
-                          <a href={candidate.portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Portfolio
-                          </a>
-                        )}
-                        {candidate.resumePath && (
-                          <a href={candidate.resumePath} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Resume
-                          </a>
-                        )}
                       </div>
                     </div>
                   ))
@@ -299,9 +301,9 @@ export default function JobRequestDetailClient() {
                       onClick={() => handleInterviewClick(interview.id)}
                       className="border border-gray-200 rounded-lg p-6 cursor-pointer hover:border-black hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="text-lg font-semibold text-black mb-1">
+                          <h3 className="text-lg font-semibold text-black">
                             {interview.candidate_name}
                           </h3>
                           <p className="text-sm text-gray-600">
@@ -395,9 +397,6 @@ function InterviewDetailModal({ interview, onClose }: { interview: Interview; on
           <div>
             <h3 className="text-sm font-medium text-gray-600 mb-1">Candidate</h3>
             <p className="text-lg font-semibold text-black">{interview.candidate_name}</p>
-            {interview.candidateEmail && (
-              <p className="text-sm text-gray-600">{interview.candidateEmail}</p>
-            )}
           </div>
 
           {/* Job Title */}

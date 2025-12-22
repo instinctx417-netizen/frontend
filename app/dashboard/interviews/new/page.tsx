@@ -236,7 +236,7 @@ export default function NewInterviewPage() {
                     <option value="">Select candidate</option>
                     {candidates.map(candidate => (
                       <option key={candidate.id} value={candidate.id}>
-                        {candidate.name} {candidate.email && `(${candidate.email})`}
+                        {candidate.name}
                       </option>
                     ))}
                   </select>

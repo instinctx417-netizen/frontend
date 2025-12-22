@@ -338,27 +338,24 @@ function JobRequestDetailModal({
         <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-black">Candidates ({candidates.length})</h3>
-            {(jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId) && (
-              <button
-                onClick={() => setShowPushCandidates(true)}
-                className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
-              >
-                + Push Candidates
-              </button>
-            )}
+            {/* Admin can always push candidates, HR only when assigned */}
+            <button
+              onClick={() => setShowPushCandidates(true)}
+              className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
+            >
+              + Push Candidates
+            </button>
           </div>
 
           {candidates.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 mb-4">No candidates pushed yet</p>
-              {(jobRequest.status === 'assigned_to_hr' || jobRequest.assignedToHrUserId) && (
-                <button
-                  onClick={() => setShowPushCandidates(true)}
-                  className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
-                >
-                  Push First Candidates
-                </button>
-              )}
+              <button
+                onClick={() => setShowPushCandidates(true)}
+                className="px-6 py-2 dashboard-btn-primary font-medium transition-colors rounded-md"
+              >
+                Push First Candidates
+              </button>
             </div>
           ) : (
             <div className="overflow-x-auto table-scroll">

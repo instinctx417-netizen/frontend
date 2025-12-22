@@ -138,7 +138,15 @@ export default function AdminInvitationsPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-black mb-6">Invitations</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-black">Invitations</h1>
+            <button
+              onClick={() => router.push('/admin/dashboard/invitation-logs')}
+              className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
+            >
+              View Logs
+            </button>
+          </div>
           
           {/* Tabs */}
           <div className="flex space-x-4 border-b border-gray-200">

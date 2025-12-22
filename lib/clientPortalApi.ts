@@ -79,6 +79,7 @@ export interface Interview {
   id: number;
   jobRequestId: number;
   candidateId: number;
+  candidateUserId?: number;
   scheduledByUserId: number;
   scheduled_at: string;
   durationMinutes: number;
@@ -406,6 +407,63 @@ export const clientPortalApi = {
     const query = departmentId ? `?departmentId=${departmentId}` : '';
     return apiRequest(`/client-portal/organizations/${organizationId}/analytics${query}`);
   },
+
+  // Log endpoints (admin only)
+  getInterviewLogs: async (
+    filters?: {
+      interviewId?: number;
+      actionType?: string;
+      performedByUserId?: number;
+      organizationId?: number;
+      startDate?: string;
+      endDate?: string;
+    },
+    page?: number,
+    limit: number = 20
+  ): Promise<ApiResponse<{ logs: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (filters?.interviewId) params.append('interviewId', filters.interviewId.toString());
+    if (filters?.actionType) params.append('actionType', filters.actionType);
+    if (filters?.performedByUserId) params.append('performedByUserId', filters.performedByUserId.toString());
+    if (filters?.organizationId) params.append('organizationId', filters.organizationId.toString());
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/interview-logs${query}`);
+  },
+
+  getInvitationLogs: async (
+    filters?: {
+      invitationId?: number;
+      actionType?: string;
+      performedByUserId?: number;
+      organizationId?: number;
+      email?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+    page?: number,
+    limit: number = 20
+  ): Promise<ApiResponse<{ logs: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (filters?.invitationId) params.append('invitationId', filters.invitationId.toString());
+    if (filters?.actionType) params.append('actionType', filters.actionType);
+    if (filters?.performedByUserId) params.append('performedByUserId', filters.performedByUserId.toString());
+    if (filters?.organizationId) params.append('organizationId', filters.organizationId.toString());
+    if (filters?.email) params.append('email', filters.email);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/invitation-logs${query}`);
+  },
 };
 
 // Admin API types and functions
@@ -508,6 +566,63 @@ export const adminApi = {
     token: string;
   }>> => {
     return apiRequest(`/client-portal/admin/invitations/${invitationId}/link`);
+  },
+
+  // Log endpoints (admin only)
+  getInterviewLogs: async (
+    filters?: {
+      interviewId?: number;
+      actionType?: string;
+      performedByUserId?: number;
+      organizationId?: number;
+      startDate?: string;
+      endDate?: string;
+    },
+    page?: number,
+    limit: number = 20
+  ): Promise<ApiResponse<{ logs: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (filters?.interviewId) params.append('interviewId', filters.interviewId.toString());
+    if (filters?.actionType) params.append('actionType', filters.actionType);
+    if (filters?.performedByUserId) params.append('performedByUserId', filters.performedByUserId.toString());
+    if (filters?.organizationId) params.append('organizationId', filters.organizationId.toString());
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/interview-logs${query}`);
+  },
+
+  getInvitationLogs: async (
+    filters?: {
+      invitationId?: number;
+      actionType?: string;
+      performedByUserId?: number;
+      organizationId?: number;
+      email?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+    page?: number,
+    limit: number = 20
+  ): Promise<ApiResponse<{ logs: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (filters?.invitationId) params.append('invitationId', filters.invitationId.toString());
+    if (filters?.actionType) params.append('actionType', filters.actionType);
+    if (filters?.performedByUserId) params.append('performedByUserId', filters.performedByUserId.toString());
+    if (filters?.organizationId) params.append('organizationId', filters.organizationId.toString());
+    if (filters?.email) params.append('email', filters.email);
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/invitation-logs${query}`);
   },
 
   getAllJobRequests: async (

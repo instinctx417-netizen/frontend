@@ -202,7 +202,7 @@ export default function DepartmentsDashboardPage() {
               </div>
 
               <div className="pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-2 gap-3 text-xs text-center">
                   <div>
                     <p className="text-gray-600 mb-1">Candidates Delivered</p>
                     <p className="text-base font-semibold text-black">{dept.statusBreakdown.candidatesDelivered}</p>

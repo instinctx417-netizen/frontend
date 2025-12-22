@@ -55,7 +55,7 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
       router.push('/login');
       return;
     }
-    if (!user || (user.userType !== 'admin' && user.userType !== 'hr')) {
+    if (!user || (user.userType !== 'admin' && user.userType !== 'hr' && user.userType !== 'client')) {
       router.push('/dashboard');
       return;
     }
@@ -173,12 +173,15 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
       <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-8 py-6 border-b border-gray-200 flex items-center justify-between">
           <div>
-            <button
-              onClick={() => router.push(backHref)}
-              className="mb-3 text-xs text-gray-500 hover:text-black"
-            >
-              ← Back to candidates
-            </button>
+            {/* Hide back button for client users */}
+            {user?.userType !== 'client' && (
+              <button
+                onClick={() => router.push(backHref)}
+                className="mb-3 text-xs text-gray-500 hover:text-black"
+              >
+                ← Back to candidates
+              </button>
+            )}
             <h1 className="text-3xl font-bold text-black">Candidate Profile</h1>
             <p className="text-sm text-gray-500 mt-1">
               Detailed application overview for {displayName}
@@ -215,14 +218,19 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
                 <div className="text-gray-500 mb-1">Full Name</div>
                 <div className="font-medium text-black">{displayName}</div>
               </div>
-              <div>
-                <div className="text-gray-500 mb-1">Email</div>
-                <div className="font-medium text-black">{candidate.email}</div>
-              </div>
-              <div>
-                <div className="text-gray-500 mb-1">Phone</div>
-                <div className="font-medium text-black">{candidate.phone || 'N/A'}</div>
-              </div>
+              {/* Hide email and phone for client users */}
+              {user?.userType !== 'client' && (
+                <>
+                  <div>
+                    <div className="text-gray-500 mb-1">Email</div>
+                    <div className="font-medium text-black">{candidate.email}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 mb-1">Phone</div>
+                    <div className="font-medium text-black">{candidate.phone || 'N/A'}</div>
+                  </div>
+                </>
+              )}
               <div>
                 <div className="text-gray-500 mb-1">Location</div>
                 <div className="font-medium text-black">

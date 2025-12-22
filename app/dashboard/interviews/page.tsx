@@ -143,7 +143,8 @@ export default function ClientInterviewsPage() {
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Job Title</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Candidate</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Department</th>
-                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Scheduled At</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Date</th>
+                    <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Time</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Duration</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Platform</th>
                     <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Status</th>
@@ -164,7 +165,22 @@ export default function ClientInterviewsPage() {
                         {(interview as any).department_name || 'N/A'}
                       </td>
                       <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
-                        {interview.scheduled_at ? new Date(interview.scheduled_at).toLocaleString() : 'N/A'}
+                        {interview.scheduled_at 
+                          ? new Date(interview.scheduled_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit'
+                            })
+                          : 'N/A'}
+                      </td>
+                      <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
+                        {interview.scheduled_at 
+                          ? new Date(interview.scheduled_at).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false
+                            })
+                          : 'N/A'}
                       </td>
                       <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-600">
                         {interview.durationMinutes || 60} min
