@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { clientPortalApi, PaginationMeta } from '@/lib/clientPortalApi';
+import { clientPortalApi, PaginationMeta, Notification } from '@/lib/clientPortalApi';
 import { useSocket } from '@/contexts/SocketContext';
 import { useToast } from '@/contexts/ToastContext';
 import Link from 'next/link';

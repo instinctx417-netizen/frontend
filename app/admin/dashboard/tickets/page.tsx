@@ -119,7 +119,7 @@ export default function AdminTicketsPage() {
       setError('');
       const response = await adminApi.getAllTickets(
         statusFilter || undefined,
-        ticketTypeFilter || undefined,
+        (ticketTypeFilter === 'hr' || ticketTypeFilter === 'it') ? ticketTypeFilter : undefined,
         pageToLoad,
         10
       );
