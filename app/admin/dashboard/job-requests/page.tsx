@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { adminApi, hrApi, clientPortalApi, HRUser, JobRequest } from '@/lib/clientPortalApi';
+import { adminApi, hrApi, clientPortalApi, HRUser, JobRequest, Candidate } from '@/lib/clientPortalApi';
 import { User } from '@/lib/api';
 import Pagination from '@/components/Pagination';
 
@@ -256,6 +256,9 @@ function JobRequestDetailModal({
   const [candidates, setCandidates] = useState(initialJobRequest.candidates || []);
   const [loading, setLoading] = useState(false);
   const [showPushCandidates, setShowPushCandidates] = useState(false);
+  const [showHireConfirm, setShowHireConfirm] = useState(false);
+  const [candidateToHire, setCandidateToHire] = useState<Candidate | null>(null);
+  const [hiring, setHiring] = useState(false);
 
   const loadJobRequest = async () => {
     try {
@@ -270,6 +273,42 @@ function JobRequestDetailModal({
       console.error('Error loading job request:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleHireClick = (candidate: Candidate) => {
+    setCandidateToHire(candidate);
+    setShowHireConfirm(true);
+  };
+
+  const handleConfirmHire = async () => {
+    if (!candidateToHire) return;
+
+    try {
+      setHiring(true);
+      const response = await clientPortalApi.hireCandidate(candidateToHire.id);
+      if (response.success) {
+        // Update local state immediately
+        setCandidates(prevCandidates => 
+          prevCandidates.map(c => 
+            c.id === candidateToHire.id 
+              ? { ...c, status: 'hired' }
+              : c
+          )
+        );
+        setShowHireConfirm(false);
+        setCandidateToHire(null);
+        // Reload to get latest data
+        await loadJobRequest();
+        onUpdate();
+      } else {
+        alert(response.message || 'Failed to hire candidate');
+      }
+    } catch (error: any) {
+      console.error('Error hiring candidate:', error);
+      alert(error.message || 'Failed to hire candidate');
+    } finally {
+      setHiring(false);
     }
   };
 
@@ -366,6 +405,7 @@ function JobRequestDetailModal({
                     <th className="px-4 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Email</th>
                     <th className="px-4 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Phone</th>
                     <th className="px-4 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Status</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -385,10 +425,21 @@ function JobRequestDetailModal({
                           candidate.status === 'delivered' ? 'bg-blue-100 text-blue-800' :
                           candidate.status === 'viewed' ? 'bg-yellow-100 text-yellow-800' :
                           candidate.status === 'selected' ? 'dashboard-badge-success' :
+                          candidate.status === 'hired' ? 'bg-green-100 text-green-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
                           {candidate.status.replace(/_/g, ' ')}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {candidate.status === 'selected' && (
+                          <button
+                            onClick={() => handleHireClick(candidate)}
+                            className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
+                          >
+                            Hire
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -410,6 +461,40 @@ function JobRequestDetailModal({
               onClose();
             }}
           />
+        )}
+
+        {/* Hire Confirmation Modal */}
+        {showHireConfirm && candidateToHire && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <h3 className="text-xl font-bold text-black mb-4">Confirm Hire</h3>
+              <p className="text-gray-700 mb-6">
+                Are you sure you want to hire <strong>{candidateToHire.name}</strong> for the position of <strong>{jobRequest.title}</strong>?
+              </p>
+              <p className="text-sm text-gray-600 mb-6">
+                This will convert the candidate to site staff and send them a notification email.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowHireConfirm(false);
+                    setCandidateToHire(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md cursor-pointer"
+                  disabled={hiring}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmHire}
+                  className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer"
+                  disabled={hiring}
+                >
+                  {hiring ? 'Hiring...' : 'Confirm Hire'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

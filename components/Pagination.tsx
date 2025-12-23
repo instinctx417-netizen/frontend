@@ -9,6 +9,7 @@ interface PaginationProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   itemLabel?: string;
+  showCount?: boolean;
 }
 
 export default function Pagination({
@@ -18,6 +19,7 @@ export default function Pagination({
   pageSize,
   onPageChange,
   itemLabel = 'items',
+  showCount = true,
 }: PaginationProps) {
   // Always display pagination, even if there's only one page or no data
 
@@ -78,21 +80,24 @@ export default function Pagination({
       className="flex items-center justify-between px-10 py-4 border-t border-gray-200 text-sm"
       style={{ color: 'var(--color-text-secondary)' }}
     >
-      <div>
-        Showing{' '}
-        <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-          {start}
-        </span>{' '}
-        to{' '}
-        <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-          {end}
-        </span>{' '}
-        of{' '}
-        <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-          {totalCount}
-        </span>{' '}
-        {itemLabel}
-      </div>
+      {showCount && (
+        <div>
+          Showing{' '}
+          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {start}
+          </span>{' '}
+          to{' '}
+          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {end}
+          </span>{' '}
+          of{' '}
+          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {totalCount}
+          </span>{' '}
+          {itemLabel}
+        </div>
+      )}
+      {!showCount && <div></div>}
       <div className="flex items-center gap-1">
         <button
           onClick={() => handleChange(currentPage - 1)}

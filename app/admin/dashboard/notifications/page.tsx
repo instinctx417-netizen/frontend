@@ -35,6 +35,8 @@ export default function AdminNotificationsPage() {
         targetPath = `/admin/dashboard/organizations`;
       } else if (notification.relatedEntityType === 'invitation') {
         targetPath = `/admin/dashboard/invitations`;
+      } else if (notification.relatedEntityType === 'ticket') {
+        targetPath = `/admin/dashboard/tickets?id=${notification.relatedEntityId}`;
       }
     }
 
@@ -84,6 +86,16 @@ export default function AdminNotificationsPage() {
                notificationType === 'system_announcement') {
         // Stay on notifications page or go to dashboard
         targetPath = `/admin/dashboard`;
+      }
+      // Ticket-related notifications
+      else if (notificationType === 'ticket_created' ||
+               notificationType === 'ticket_assigned' ||
+               notificationType === 'ticket_message') {
+        if (notification.relatedEntityId) {
+          targetPath = `/admin/dashboard/tickets?id=${notification.relatedEntityId}`;
+        } else {
+          targetPath = `/admin/dashboard/tickets`;
+        }
       }
     }
 

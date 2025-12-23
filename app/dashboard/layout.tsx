@@ -44,8 +44,13 @@ export default function DashboardLayout({
       return;
     }
 
+    // Load organization for client users only
+    // Staff members (candidate userType) will have empty dashboard
     if (isAuthenticated && user?.userType === 'client') {
       loadOrganization();
+    } else if (isAuthenticated && user?.userType === 'candidate') {
+      // Staff members - set loading to false so they can see empty dashboard
+      setLoadingOrg(false);
     }
   }, [isAuthenticated, authLoading, user]);
 
@@ -89,7 +94,8 @@ export default function DashboardLayout({
     );
   }
 
-  if (!isAuthenticated || user?.userType !== 'client') {
+  // Allow client users and staff members (candidate userType) to access dashboard
+  if (!isAuthenticated || (user?.userType !== 'client' && user?.userType !== 'candidate')) {
     return null;
   }
 

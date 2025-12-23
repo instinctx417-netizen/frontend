@@ -14,7 +14,8 @@ export default function ClientNotificationsPage() {
       router.replace('/login');
       return;
     }
-    if (user?.userType !== 'client') {
+    // Allow client users and staff members (candidate userType) to access notifications
+    if (user?.userType !== 'client' && user?.userType !== 'candidate') {
       router.replace('/dashboard');
     }
   }, [isAuthenticated, user, router]);
@@ -33,6 +34,8 @@ export default function ClientNotificationsPage() {
         targetPath = `/dashboard/job-requests`;
       } else if (notification.relatedEntityType === 'organization') {
         targetPath = `/dashboard`;
+      } else if (notification.relatedEntityType === 'ticket') {
+        targetPath = `/dashboard/tickets?id=${notification.relatedEntityId}`;
       }
     }
 
@@ -84,6 +87,16 @@ export default function ClientNotificationsPage() {
       else if (notificationType === 'status_update' ||
                notificationType === 'system_announcement') {
         targetPath = `/dashboard`;
+      }
+      // Ticket-related notifications
+      else if (notificationType === 'ticket_created' ||
+               notificationType === 'ticket_assigned' ||
+               notificationType === 'ticket_message') {
+        if (notification.relatedEntityId) {
+          targetPath = `/dashboard/tickets?id=${notification.relatedEntityId}`;
+        } else {
+          targetPath = `/dashboard/tickets`;
+        }
       }
     }
 

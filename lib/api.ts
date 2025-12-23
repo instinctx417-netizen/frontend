@@ -68,8 +68,11 @@ export async function apiRequest<T>(
     const data = await response.json();
 
     if (!response.ok) {
-      const error: any = new Error(data.message || 'Request failed');
+      // Extract error message from response
+      const errorMessage = data.message || data.error || 'Request failed';
+      const error: any = new Error(errorMessage);
       error.status = response.status;
+      error.response = data;
       throw error;
     }
 

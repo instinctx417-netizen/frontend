@@ -175,6 +175,21 @@ export const clientPortalApi = {
     return apiRequest(`/client-portal/organizations/${organizationId}/users`);
   },
 
+  // Organization Staff
+  getOrganizationStaff: async (
+    organizationId: number,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ staff: User[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/organizations/${organizationId}/staff${query}`);
+  },
+
   // Job Requests
   getJobRequests: async (
     organizationId: number,
@@ -242,6 +257,58 @@ export const clientPortalApi = {
     return apiRequest(`/client-portal/candidates/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
+    });
+  },
+
+  hireCandidate: async (id: number): Promise<ApiResponse<{ siteStaff: any }>> => {
+    return apiRequest(`/client-portal/candidates/${id}/hire`, {
+      method: 'POST',
+    });
+  },
+
+  // Staff profile routes
+  getStaffProfile: async (): Promise<ApiResponse<{ staff: { id: number; userId: number; positionTitle: string; organizationId: number; organizationName: string; hiredAt: string; profileData: any } }>> => {
+    return apiRequest('/client-portal/staff/profile');
+  },
+
+  updateStaffProfile: async (data: { favoriteFood?: string; favoriteMovie?: string; hobbies?: string }): Promise<ApiResponse<{ staff: { id: number; profileData: any } }>> => {
+    return apiRequest('/client-portal/staff/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Ticket routes (staff)
+  createTicket: async (data: { ticketType: 'hr' | 'it'; subject?: string; description: string }): Promise<ApiResponse<{ ticket: any }>> => {
+    return apiRequest('/client-portal/tickets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getMyTickets: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ tickets: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/tickets/my-tickets${query}`);
+  },
+
+  getTicketById: async (id: number): Promise<ApiResponse<{ ticket: any; messages: any[] }>> => {
+    return apiRequest(`/client-portal/tickets/${id}`);
+  },
+
+  addTicketMessage: async (ticketId: number, message: string): Promise<ApiResponse<{ message: any }>> => {
+    return apiRequest(`/client-portal/tickets/${ticketId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
     });
   },
 
@@ -394,6 +461,13 @@ export const clientPortalApi = {
   markAllNotificationsAsRead: async (): Promise<ApiResponse<{ count: number }>> => {
     return apiRequest('/client-portal/notifications/read-all', {
       method: 'PUT',
+    });
+  },
+
+  markNotificationsAsReadByRelatedEntity: async (relatedEntityType: string, relatedEntityId: number): Promise<ApiResponse<{ count: number }>> => {
+    return apiRequest('/client-portal/notifications/read-by-related-entity', {
+      method: 'PUT',
+      body: JSON.stringify({ relatedEntityType, relatedEntityId }),
     });
   },
 
@@ -661,6 +735,20 @@ export const adminApi = {
     return apiRequest(`/client-portal/admin/candidates${query}`);
   },
 
+  // Admin staff members endpoint
+  getStaffMembers: async (
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ staff: User[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/staff${query}`);
+  },
+
   getAllOrganizations: async (
     page?: number,
     limit: number = 10
@@ -698,6 +786,38 @@ export const adminApi = {
   deactivateOrganization: async (organizationId: number): Promise<ApiResponse<{ organization: Organization }>> => {
     return apiRequest(`/client-portal/admin/organizations/${organizationId}/deactivate`, {
       method: 'POST',
+    });
+  },
+
+  // Admin ticket routes
+  getAllTickets: async (
+    status?: string,
+    ticketType?: 'hr' | 'it',
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ tickets: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (ticketType) params.append('ticketType', ticketType);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/admin/tickets${query}`);
+  },
+
+  assignTicket: async (ticketId: number, assignedToUserId: number | null): Promise<ApiResponse<{ ticket: any }>> => {
+    return apiRequest(`/client-portal/tickets/${ticketId}/assign`, {
+      method: 'PUT',
+      body: JSON.stringify({ assignedToUserId }),
+    });
+  },
+
+  updateTicketStatus: async (ticketId: number, status: string): Promise<ApiResponse<{ ticket: any }>> => {
+    return apiRequest(`/client-portal/tickets/${ticketId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     });
   },
 };
@@ -764,6 +884,29 @@ export const hrApi = {
     }
     const query = params.toString() ? `?${params.toString()}` : '';
     return apiRequest(`/client-portal/hr/interviews${query}`);
+  },
+
+  // HR ticket routes
+  getAssignedTickets: async (
+    status?: string,
+    page?: number,
+    limit: number = 10
+  ): Promise<ApiResponse<{ tickets: any[]; pagination?: PaginationMeta }>> => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (page !== undefined) {
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiRequest(`/client-portal/tickets/assigned${query}`);
+  },
+
+  updateTicketStatus: async (ticketId: number, status: string): Promise<ApiResponse<{ ticket: any }>> => {
+    return apiRequest(`/client-portal/tickets/${ticketId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
   },
 };
 

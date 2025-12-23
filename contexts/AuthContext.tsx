@@ -113,6 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           router.replace('/admin/dashboard');
         } else if (userType === 'hr') {
           router.replace('/hr/dashboard');
+        } else if (userType === 'candidate') {
+          // Staff members (hired candidates) go to client dashboard
+          router.replace('/dashboard');
         } else {
           router.replace('/dashboard');
         }

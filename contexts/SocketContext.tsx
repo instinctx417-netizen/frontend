@@ -45,6 +45,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
       // Join user-specific room
       newSocket.emit('join-user-room', user.id);
+      
+      // Join admin room if user is admin
+      if (user.userType === 'admin') {
+        newSocket.emit('join-admin-room');
+      }
     });
 
     newSocket.on('disconnect', () => {

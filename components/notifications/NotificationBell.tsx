@@ -145,6 +145,8 @@ export default function NotificationBell() {
           targetPath = `/admin/dashboard/organizations`;
         } else if (notification.relatedEntityType === 'invitation') {
           targetPath = `/admin/dashboard/invitations`;
+        } else if (notification.relatedEntityType === 'ticket') {
+          targetPath = `/admin/dashboard/tickets?id=${notification.relatedEntityId}`;
         }
       } else if (user?.userType === 'hr') {
         if (notification.relatedEntityType === 'job_request') {
@@ -153,6 +155,8 @@ export default function NotificationBell() {
           targetPath = `/hr/dashboard/interviews`;
         } else if (notification.relatedEntityType === 'candidate') {
           targetPath = `/hr/dashboard/candidates`;
+        } else if (notification.relatedEntityType === 'ticket') {
+          targetPath = `/hr/dashboard/tickets?id=${notification.relatedEntityId}`;
         }
       } else {
         if (notification.relatedEntityType === 'job_request') {
@@ -163,6 +167,8 @@ export default function NotificationBell() {
           targetPath = `/dashboard/job-requests`;
         } else if (notification.relatedEntityType === 'organization') {
           targetPath = `/dashboard`;
+        } else if (notification.relatedEntityType === 'ticket') {
+          targetPath = `/dashboard/tickets?id=${notification.relatedEntityId}`;
         }
       }
     }
@@ -235,6 +241,16 @@ export default function NotificationBell() {
                  notificationType === 'interview_reminder') {
           targetPath = `/hr/dashboard/interviews`;
         }
+        // Ticket-related
+        else if (notificationType === 'ticket_created' ||
+                 notificationType === 'ticket_message' ||
+                 notificationType === 'ticket_assigned') {
+          if (notification.relatedEntityId) {
+            targetPath = `/hr/dashboard/tickets?id=${notification.relatedEntityId}`;
+          } else {
+            targetPath = `/hr/dashboard/tickets`;
+          }
+        }
         // Other
         else if (notificationType === 'selection_reminder') {
           targetPath = `/hr/dashboard/job-requests`;
@@ -278,6 +294,16 @@ export default function NotificationBell() {
         else if (notificationType === 'organization_activated' ||
                  notificationType === 'organization_deactivated') {
           targetPath = `/dashboard`;
+        }
+        // Ticket-related
+        else if (notificationType === 'ticket_created' ||
+                 notificationType === 'ticket_message' ||
+                 notificationType === 'ticket_assigned') {
+          if (notification.relatedEntityId) {
+            targetPath = `/dashboard/tickets?id=${notification.relatedEntityId}`;
+          } else {
+            targetPath = `/dashboard/tickets`;
+          }
         }
         // Other
         else if (notificationType === 'selection_reminder') {

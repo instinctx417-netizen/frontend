@@ -24,11 +24,16 @@ export default function DashboardPage() {
       return;
     }
 
+    // Load data only for client users
+    // Staff members (candidate userType) will see empty dashboard
     if (isAuthenticated && user?.userType === 'client') {
       if (!hasLoadedRef.current) {
         hasLoadedRef.current = true;
         loadData();
       }
+    } else if (isAuthenticated && user?.userType === 'candidate') {
+      // Staff members - set loading to false to show empty dashboard
+      setLoading(false);
     }
   }, [isAuthenticated, authLoading, user]);
 
@@ -71,6 +76,61 @@ export default function DashboardPage() {
     }
   };
 
+
+  // Show staff dashboard for staff members (candidate userType)
+  if (isAuthenticated && user?.userType === 'candidate') {
+    return (
+      <main className="min-h-screen p-8" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8" style={{ color: 'var(--color-text-primary)' }}>Dashboard</h1>
+          
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="dashboard-card rounded-lg p-6">
+              <p className="text-sm mb-2 font-light" style={{ color: 'var(--color-text-secondary)' }}>Onboarding Progress</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>--</p>
+            </div>
+            <div className="dashboard-card rounded-lg p-6">
+              <p className="text-sm mb-2 font-light" style={{ color: 'var(--color-text-secondary)' }}>Active Assignments</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>--</p>
+            </div>
+            <div className="dashboard-card rounded-lg p-6">
+              <p className="text-sm mb-2 font-light" style={{ color: 'var(--color-text-secondary)' }}>Training Completed</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>--</p>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="dashboard-card rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Quick Actions</h2>
+              <div className="space-y-3">
+                <Link href="/dashboard/onboarding" className="block p-3 rounded-md hover:bg-gray-50 transition-colors" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="font-medium">Complete Onboarding</span>
+                </Link>
+                <Link href="/dashboard/training" className="block p-3 rounded-md hover:bg-gray-50 transition-colors" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="font-medium">Start Training</span>
+                </Link>
+                <Link href="/dashboard/assignments" className="block p-3 rounded-md hover:bg-gray-50 transition-colors" style={{ color: 'var(--color-text-primary)' }}>
+                  <span className="font-medium">View Assignments</span>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="dashboard-card rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Welcome</h2>
+              <p className="font-light mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                Welcome to your staff portal! Use the navigation menu to access onboarding, training modules, assignments, and your profile.
+              </p>
+              <Link href="/dashboard/profile" className="inline-block px-4 py-2 dashboard-btn-primary font-medium rounded-md cursor-pointer">
+                Update Profile
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (authLoading || loading) {
     return (

@@ -51,6 +51,7 @@ export default function LoginPage() {
       await login(email, password);
       // Navigation handled by AuthContext
     } catch (err: any) {
+      // Display error message and stay on login page
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);

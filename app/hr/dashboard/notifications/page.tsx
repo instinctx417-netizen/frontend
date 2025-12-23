@@ -31,6 +31,8 @@ export default function HRNotificationsPage() {
         targetPath = `/hr/dashboard/interviews`;
       } else if (notification.relatedEntityType === 'candidate') {
         targetPath = `/hr/dashboard/candidates`;
+      } else if (notification.relatedEntityType === 'ticket') {
+        targetPath = `/hr/dashboard/tickets?id=${notification.relatedEntityId}`;
       }
     }
 
@@ -67,6 +69,15 @@ export default function HRNotificationsPage() {
       else if (notificationType === 'status_update' ||
                notificationType === 'system_announcement') {
         targetPath = `/hr/dashboard`;
+      }
+      // Ticket-related notifications
+      else if (notificationType === 'ticket_assigned' ||
+               notificationType === 'ticket_message') {
+        if (notification.relatedEntityId) {
+          targetPath = `/hr/dashboard/tickets?id=${notification.relatedEntityId}`;
+        } else {
+          targetPath = `/hr/dashboard/tickets`;
+        }
       }
     }
 

@@ -245,6 +245,22 @@ export default function JobRequestDetailClient() {
                       <div className="flex items-center justify-between gap-4">
                         <h3 className="text-lg font-semibold text-black">{candidate.name}</h3>
                         <div className="flex items-center gap-3">
+                          {candidate.status !== 'hired' ? (
+                            <select
+                              value={candidate.status}
+                              onChange={(e) => handleCandidateStatusChange(candidate.id, e.target.value)}
+                              className="px-3 py-2 text-sm rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-2 focus:ring-black h-[42px]"
+                            >
+                              <option value="delivered">Delivered</option>
+                              <option value="viewed">Viewed</option>
+                              <option value="shortlisted">Shortlisted</option>
+                              <option value="interview_scheduled">Interview Scheduled</option>
+                              <option value="selected">Selected</option>
+                              <option value="rejected">Rejected</option>
+                            </select>
+                          ) : (
+                            <span className="px-3 py-2 text-sm text-green-700 italic h-[42px] flex items-center font-medium">Hired</span>
+                          )}
                           {candidate.userId && (
                             <a
                               href={`/dashboard/candidates/detail?id=${candidate.userId}`}
@@ -270,18 +286,6 @@ export default function JobRequestDetailClient() {
                               </svg>
                             </a>
                           )}
-                          <select
-                            value={candidate.status}
-                            onChange={(e) => handleCandidateStatusChange(candidate.id, e.target.value)}
-                            className="px-3 py-2 text-sm rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-2 focus:ring-black h-[42px]"
-                          >
-                            <option value="delivered">Delivered</option>
-                            <option value="viewed">Viewed</option>
-                            <option value="shortlisted">Shortlisted</option>
-                            <option value="interview_scheduled">Interview Scheduled</option>
-                            <option value="selected">Selected</option>
-                            <option value="rejected">Rejected</option>
-                          </select>
                         </div>
                       </div>
                     </div>
@@ -358,6 +362,7 @@ export default function JobRequestDetailClient() {
                 }}
               />
             )}
+
           </div>
         </div>
       </div>
