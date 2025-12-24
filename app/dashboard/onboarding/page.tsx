@@ -233,7 +233,7 @@ export default function OnboardingPage() {
                   ) : (
                     <div>
                       <input
-                        ref={(el) => (fileInputRefs.current[requirement.id] = el)}
+                        ref={(el) => { fileInputRefs.current[requirement.id] = el; }}
                         type="file"
                         accept="image/*,.pdf"
                         onChange={(e) => {
