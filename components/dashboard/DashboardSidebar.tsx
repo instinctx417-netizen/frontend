@@ -2,8 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  children?: NavItem[];
+}
 
 interface DashboardSidebarProps {
   organizationId?: number;
@@ -18,9 +25,14 @@ export default function DashboardSidebar({
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
   const isActive = (path: string) => {
     if (path === '/dashboard' || path === '/admin/dashboard' || path === '/hr/dashboard') {
+      return pathname === path;
+    }
+    // For training paths, use exact match to avoid highlighting both videos and quizzes
+    if (path.includes('/training')) {
       return pathname === path;
     }
     return pathname?.startsWith(path);
@@ -108,7 +120,7 @@ export default function DashboardSidebar({
   ];
 
   // Admin navigation items
-  const adminNavItems = [
+  const adminNavItems: NavItem[] = [
     {
       label: 'Dashboard',
       href: '/admin/dashboard',
@@ -213,6 +225,46 @@ export default function DashboardSidebar({
       ),
     },
     {
+      label: 'Training',
+      href: '/admin/dashboard/training',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+        </svg>
+      ),
+      children: [
+        {
+          label: 'Videos',
+          href: '/admin/dashboard/training/videos',
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+          ),
+        },
+        {
+          label: 'Quizzes',
+          href: '/admin/dashboard/training/quizzes',
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 11H1l6-6m4 0h8l-6 6m-4 12h8l6-6"></path>
+            </svg>
+          ),
+        },
+      ],
+    },
+    {
+      label: 'Onboarding',
+      href: '/admin/dashboard/onboarding',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      ),
+    },
+    {
       label: 'Notifications',
       href: '/dashboard/notifications',
       icon: (
@@ -225,7 +277,7 @@ export default function DashboardSidebar({
   ];
 
   // HR navigation items
-  const hrNavItems = [
+  const hrNavItems: NavItem[] = [
     {
       label: 'Dashboard',
       href: '/hr/dashboard',
@@ -285,7 +337,7 @@ export default function DashboardSidebar({
   ];
 
   // Staff navigation items (for hired candidates)
-  const staffNavItems = [
+  const staffNavItems: NavItem[] = [
     {
       label: 'Dashboard',
       href: '/dashboard',
@@ -299,13 +351,34 @@ export default function DashboardSidebar({
       ),
     },
     {
-      label: 'Training Modules',
+      label: 'Training',
       href: '/dashboard/training',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
         </svg>
       ),
+      children: [
+        {
+          label: 'Videos',
+          href: '/dashboard/training',
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+          ),
+        },
+        {
+          label: 'Quizzes',
+          href: '/dashboard/training/quizzes',
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 11H1l6-6m4 0h8l-6 6m-4 12h8l6-6"></path>
+            </svg>
+          ),
+        },
+      ],
     },
     {
       label: 'Onboarding',
@@ -314,18 +387,6 @@ export default function DashboardSidebar({
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-      ),
-    },
-    {
-      label: 'Assignments',
-      href: '/dashboard/assignments',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
       ),
     },
@@ -396,7 +457,22 @@ export default function DashboardSidebar({
     return clientNavItems;
   };
 
-  const navItems = getNavItems();
+  const navItems: NavItem[] = getNavItems();
+  
+  // Auto-expand/collapse menus based on active page
+  useEffect(() => {
+    const newExpandedMenus: Record<string, boolean> = {};
+    
+    navItems.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => isActive(child.href));
+        // Only expand if a child is active, otherwise collapse
+        newExpandedMenus[item.href] = hasActiveChild;
+      }
+    });
+    
+    setExpandedMenus(newExpandedMenus);
+  }, [pathname]);
   
   const canInviteTeam = user?.userType === 'client' && user?.role === 'coo';
 
@@ -457,22 +533,81 @@ export default function DashboardSidebar({
           <nav className="flex-1 overflow-y-auto p-4 space-y-2 sidebar-scroll">
             {navItems.map((item) => {
               const active = isActive(item.href);
+              const hasChildren = item.children && item.children.length > 0;
+              const isExpanded = expandedMenus[item.href] || false;
+              const isParentActive = hasChildren && item.children?.some(child => isActive(child.href));
+
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-md transition-colors ${
-                    active
-                      ? 'dashboard-nav-active'
-                      : 'dashboard-nav-inactive'
-                  }`}
-                >
-                  <span>
-                    {item.icon}
-                  </span>
-                  <span className="font-medium text-sm">{item.label}</span>
-                </Link>
+                <div key={item.href}>
+                  <div className="flex items-center">
+                    <Link
+                      href={item.href}
+                      onClick={(e) => {
+                        if (hasChildren) {
+                          e.preventDefault();
+                          setExpandedMenus(prev => ({ ...prev, [item.href]: !isExpanded }));
+                        } else {
+                          setIsOpen(false);
+                        }
+                      }}
+                      className={`flex items-center space-x-2 px-4 py-3 rounded-md transition-colors flex-1 ${
+                        active || isParentActive
+                          ? 'dashboard-nav-active'
+                          : 'dashboard-nav-inactive'
+                      }`}
+                    >
+                      <span>
+                        {item.icon}
+                      </span>
+                      <span className="font-medium text-sm">{item.label}</span>
+                    </Link>
+                    {hasChildren && (
+                      <button
+                        onClick={() => setExpandedMenus(prev => ({ ...prev, [item.href]: !isExpanded }))}
+                        className="px-2 py-3 text-gray-500 hover:text-white transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        >
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  {hasChildren && isExpanded && (
+                    <div className="ml-4 mt-1 space-y-1 p-2 rounded-tl-none rounded-tr-md rounded-br-md rounded-bl-md bg-[#6464645c]">
+                      {item.children?.map((child) => {
+                        const childActive = isActive(child.href);
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                              childActive
+                                ? 'dashboard-nav-active'
+                                : 'dashboard-nav-inactive opacity-75'
+                            }`}
+                          >
+                            <span>
+                              {child.icon}
+                            </span>
+                            <span className="font-medium text-sm">{child.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>

@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { clientPortalApi } from '@/lib/clientPortalApi';
+import { clientPortalApi, adminApi } from '@/lib/clientPortalApi';
 import { User } from '@/lib/api';
+import { useToast } from '@/contexts/ToastContext';
 
 interface CandidateDetailPageProps {
   backHref: string;
@@ -41,6 +42,13 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
   const [candidate, setCandidate] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [quizStats, setQuizStats] = useState<{ total_answered: number; correct_answers: number; outdated_answers: number } | null>(null);
+  const [onboardingSubmissions, setOnboardingSubmissions] = useState<any[]>([]);
+  const [loadingQuizStats, setLoadingQuizStats] = useState(false);
+  const [loadingOnboarding, setLoadingOnboarding] = useState(false);
+  const [deletingSubmission, setDeletingSubmission] = useState<number | null>(null);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ show: boolean; submissionId: number; fileName: string } | null>(null);
+  const { showToast } = useToast();
   const [fileModal, setFileModal] = useState<{
     open: boolean;
     url: string;
@@ -72,6 +80,12 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
         const response = await clientPortalApi.getCandidateUserDetails(candidateId);
         if (response.success && response.data) {
           setCandidate(response.data.candidate);
+          
+          // If admin viewing a staff member, load quiz stats and onboarding docs
+          if (user?.userType === 'admin' && response.data.candidate.userType === 'candidate') {
+            loadQuizStats(candidateId);
+            loadOnboardingDocs(candidateId);
+          }
         } else {
           setError(response.message || 'Failed to load candidate');
         }
@@ -85,6 +99,66 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
 
     load();
   }, [candidateId, isAuthenticated, user]);
+
+  const loadQuizStats = async (userId: number) => {
+    try {
+      setLoadingQuizStats(true);
+      const response = await clientPortalApi.getQuizStats(userId);
+      if (response.success && response.data) {
+        setQuizStats(response.data.stats);
+      }
+    } catch (err: any) {
+      console.error('Error loading quiz stats:', err);
+    } finally {
+      setLoadingQuizStats(false);
+    }
+  };
+
+  const loadOnboardingDocs = async (userId: number) => {
+    try {
+      setLoadingOnboarding(true);
+      const response = await clientPortalApi.getOnboardingRequirements(userId);
+      console.log('Onboarding docs response:', response);
+      if (response.success && response.data) {
+        console.log('Onboarding submissions:', response.data.submissions);
+        setOnboardingSubmissions(response.data.submissions || []);
+      } else {
+        console.error('Failed to load onboarding docs:', response.message);
+      }
+    } catch (err: any) {
+      console.error('Error loading onboarding docs:', err);
+    } finally {
+      setLoadingOnboarding(false);
+    }
+  };
+
+  const handleDeleteSubmission = (submissionId: number, fileName: string) => {
+    setDeleteConfirmModal({ show: true, submissionId, fileName });
+  };
+
+  const confirmDeleteSubmission = async () => {
+    if (!deleteConfirmModal) return;
+
+    try {
+      setDeletingSubmission(deleteConfirmModal.submissionId);
+      const response = await adminApi.deleteOnboardingSubmission(deleteConfirmModal.submissionId);
+      if (response.success) {
+        showToast('Onboarding document deleted successfully', 'success');
+        setDeleteConfirmModal(null);
+        // Reload onboarding docs
+        if (candidateId) {
+          await loadOnboardingDocs(candidateId);
+        }
+      } else {
+        showToast(response.message || 'Failed to delete document', 'error');
+      }
+    } catch (err: any) {
+      console.error('Error deleting submission:', err);
+      showToast(err.message || 'Failed to delete document', 'error');
+    } finally {
+      setDeletingSubmission(null);
+    }
+  };
 
   const openFileModal = (item: FileItem) => {
     const url = buildFileUrl(item.key);
@@ -412,8 +486,123 @@ export default function CandidateDetailPage({ backHref }: CandidateDetailPagePro
               </div>
             )}
           </section>
+
+          {/* Quiz Summary - Only for admin viewing staff */}
+          {user?.userType === 'admin' && candidate?.userType === 'candidate' && (
+            <section>
+              <h2 className="text-lg font-semibold text-black border-b border-gray-200 pb-2">
+                Training Quiz Summary
+              </h2>
+              {loadingQuizStats ? (
+                <div className="mt-4 text-sm text-gray-500">Loading quiz stats...</div>
+              ) : quizStats ? (
+                <div className="mt-4 grid md:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-1">Total Answered</div>
+                    <div className="text-2xl font-bold text-black">{quizStats.total_answered || 0}</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-1">Correct Answers</div>
+                    <div className="text-2xl font-bold text-green-700">{quizStats.correct_answers || 0}</div>
+                  </div>
+                  <div className="bg-yellow-50 rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-1">Outdated Answers</div>
+                    <div className="text-2xl font-bold text-yellow-700">{quizStats.outdated_answers || 0}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-gray-500">No quiz data available</div>
+              )}
+            </section>
+          )}
+
+          {/* Onboarding Documents - Only for admin viewing staff */}
+          {user?.userType === 'admin' && candidate?.userType === 'candidate' && (
+            <section>
+              <h2 className="text-lg font-semibold text-black border-b border-gray-200 pb-2">
+                Onboarding Documents
+              </h2>
+              {loadingOnboarding ? (
+                <div className="mt-4 text-sm text-gray-500">Loading documents...</div>
+              ) : onboardingSubmissions.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {onboardingSubmissions.map((submission) => {
+                    const fileUrl = buildFileUrl(submission.file_url);
+                    const fileType = getFileTypeFromKey(submission.file_url);
+                    return (
+                      <div key={submission.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-black">{submission.requirement_title}</div>
+                          {submission.requirement_description && (
+                            <div className="text-xs text-gray-500 mt-1">{submission.requirement_description}</div>
+                          )}
+                          <div className="text-xs text-gray-400 mt-1">
+                            {submission.file_name} • {submission.file_size ? `${(submission.file_size / 1024).toFixed(1)} KB` : ''}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {fileUrl && (
+                            <button
+                              onClick={() => openFileModal({
+                                key: submission.file_url,
+                                label: submission.file_name,
+                                type: fileType,
+                                role: 'attachment'
+                              })}
+                              className="px-3 py-1 text-xs dashboard-btn-primary font-medium rounded cursor-pointer"
+                            >
+                              View
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteSubmission(submission.id, submission.file_name)}
+                            disabled={deletingSubmission === submission.id}
+                            className="px-3 py-1 text-xs border border-red-300 rounded text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            {deletingSubmission === submission.id ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-gray-500">No onboarding documents submitted</div>
+              )}
+            </section>
+          )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmModal?.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-black mb-4">Delete Onboarding Document</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete <strong>{deleteConfirmModal.fileName}</strong>?
+            </p>
+            <p className="text-sm text-gray-600 mb-6">
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirmModal(null)}
+                className="px-4 py-2 bg-gray-200 text-black font-medium hover:bg-gray-300 transition-colors rounded-md cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteSubmission}
+                disabled={deletingSubmission === deleteConfirmModal.submissionId}
+                className="px-4 py-2 dashboard-btn-primary font-medium transition-colors rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingSubmission === deleteConfirmModal.submissionId ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* File preview modal */}
       {fileModal.open && (

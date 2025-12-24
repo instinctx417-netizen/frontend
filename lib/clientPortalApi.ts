@@ -538,6 +538,50 @@ export const clientPortalApi = {
     const query = params.toString() ? `?${params.toString()}` : '';
     return apiRequest(`/client-portal/admin/invitation-logs${query}`);
   },
+
+  // Training - Videos
+  getVideos: async (): Promise<ApiResponse<{ videos: any[] }>> => {
+    return apiRequest('/client-portal/training/videos');
+  },
+
+  // Training - Quizzes
+  getQuizzes: async (): Promise<ApiResponse<{ quizzes: any[]; answers: any[] }>> => {
+    return apiRequest('/client-portal/training/quizzes');
+  },
+
+  submitQuizAnswer: async (quizId: number, selectedAnswer: string): Promise<ApiResponse<{ answer: any; isCorrect: boolean }>> => {
+    return apiRequest('/client-portal/training/quizzes/answer', {
+      method: 'POST',
+      body: JSON.stringify({ quizId, selectedAnswer }),
+    });
+  },
+
+  getQuizStats: async (userId?: number): Promise<ApiResponse<{ stats: any }>> => {
+    const query = userId ? `?userId=${userId}` : '';
+    return apiRequest(`/client-portal/training/quizzes/stats${query}`);
+  },
+
+  // Onboarding
+  getOnboardingRequirements: async (userId?: number): Promise<ApiResponse<{ requirements: any[]; submissions: any[] }>> => {
+    const query = userId ? `?userId=${userId}` : '';
+    return apiRequest(`/client-portal/onboarding/requirements${query}`);
+  },
+
+  submitOnboardingFile: async (requirementId: number, file: File): Promise<ApiResponse<{ submission: any }>> => {
+    const formData = new FormData();
+    formData.append('requirementId', requirementId.toString());
+    formData.append('file', file);
+    return apiRequest('/client-portal/onboarding/submit', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  deleteOnboardingSubmission: async (submissionId: number): Promise<ApiResponse<void>> => {
+    return apiRequest(`/client-portal/onboarding/submissions/${submissionId}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Admin API types and functions
@@ -818,6 +862,111 @@ export const adminApi = {
     return apiRequest(`/client-portal/tickets/${ticketId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
+    });
+  },
+
+  // Training - Videos (Admin)
+  getVideos: async (): Promise<ApiResponse<{ videos: any[] }>> => {
+    return apiRequest('/client-portal/training/videos');
+  },
+
+  createVideo: async (title: string, youtubeUrl: string, displayOrder?: number): Promise<ApiResponse<{ video: any }>> => {
+    return apiRequest('/client-portal/training/videos', {
+      method: 'POST',
+      body: JSON.stringify({ title, youtubeUrl, displayOrder }),
+    });
+  },
+
+  updateVideo: async (id: number, data: { title?: string; youtubeUrl?: string; displayOrder?: number }): Promise<ApiResponse<{ video: any }>> => {
+    return apiRequest(`/client-portal/training/videos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteVideo: async (id: number): Promise<ApiResponse<void>> => {
+    return apiRequest(`/client-portal/training/videos/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Training - Quizzes (Admin)
+  getQuizzes: async (): Promise<ApiResponse<{ quizzes: any[]; answers: any[] }>> => {
+    return apiRequest('/client-portal/training/quizzes');
+  },
+
+  createQuiz: async (data: {
+    question: string;
+    optionA: string;
+    optionB: string;
+    optionC: string;
+    optionD: string;
+    correctAnswer: string;
+  }): Promise<ApiResponse<{ quiz: any }>> => {
+    return apiRequest('/client-portal/training/quizzes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateQuiz: async (id: number, data: {
+    question?: string;
+    optionA?: string;
+    optionB?: string;
+    optionC?: string;
+    optionD?: string;
+    correctAnswer?: string;
+  }): Promise<ApiResponse<{ quiz: any }>> => {
+    return apiRequest(`/client-portal/training/quizzes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteQuiz: async (id: number): Promise<ApiResponse<void>> => {
+    return apiRequest(`/client-portal/training/quizzes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Onboarding Requirements (Admin)
+  getOnboardingRequirements: async (): Promise<ApiResponse<{ requirements: any[]; submissions: any[] }>> => {
+    return apiRequest('/client-portal/onboarding/requirements');
+  },
+
+  createOnboardingRequirement: async (data: {
+    title: string;
+    description?: string;
+    isRequired?: boolean;
+    displayOrder?: number;
+  }): Promise<ApiResponse<{ requirement: any }>> => {
+    return apiRequest('/client-portal/onboarding/requirements', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateOnboardingRequirement: async (id: number, data: {
+    title?: string;
+    description?: string;
+    isRequired?: boolean;
+    displayOrder?: number;
+  }): Promise<ApiResponse<{ requirement: any }>> => {
+    return apiRequest(`/client-portal/onboarding/requirements/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteOnboardingRequirement: async (id: number): Promise<ApiResponse<void>> => {
+    return apiRequest(`/client-portal/onboarding/requirements/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  deleteOnboardingSubmission: async (submissionId: number): Promise<ApiResponse<void>> => {
+    return apiRequest(`/client-portal/onboarding/submissions/${submissionId}`, {
+      method: 'DELETE',
     });
   },
 };
