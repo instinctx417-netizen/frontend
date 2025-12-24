@@ -101,13 +101,17 @@ export default function HRTicketsPage() {
     };
 
     const handleNewNotification = (notification: any) => {
-      // Update unread count if it's a ticket notification
+      // Reload ticket list to get updated data when a ticket notification is received
       if (notification.relatedEntityType === 'ticket' && notification.relatedEntityId) {
-        setTickets(prev => prev.map(t => 
-          t.id === notification.relatedEntityId 
-            ? { ...t, unreadCount: (t.unreadCount || 0) + 1 }
-            : t
-        ));
+        const currentPage = pagination?.page || 1;
+        const currentSelectedTicket = selectedTicket;
+        loadTickets(currentPage).then(() => {
+          // Keep the selected ticket open if it's still in the list
+          if (currentSelectedTicket) {
+            // Reload ticket details to refresh the opened ticket
+            loadTicketDetails(currentSelectedTicket);
+          }
+        });
       }
     };
 

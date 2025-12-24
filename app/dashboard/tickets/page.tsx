@@ -89,24 +89,52 @@ export default function StaffTicketsPage() {
     };
 
     const handleNewNotification = (notification: Notification) => {
-      // Update unread count if it's a ticket notification
+      // Reload ticket list to get updated data when a ticket notification is received
       if (notification.relatedEntityType === 'ticket' && notification.relatedEntityId) {
+        const currentPage = pagination?.page || 1;
+        const currentSelectedTicket = selectedTicket;
+        loadTickets(currentPage).then(() => {
+          // Keep the selected ticket open if it's still in the list
+          if (currentSelectedTicket) {
+            // Reload ticket details to refresh the opened ticket
+            loadTicketDetails(currentSelectedTicket);
+          }
+        });
+      }
+    };
+
+    const handleTicketStatusUpdate = (data: { ticketId: number; status: string; ticket: any }) => {
+      // Update ticket in list
+      const validStatus = ['open', 'assigned', 'in_progress', 'resolved', 'closed'].includes(data.status)
+        ? data.status as 'open' | 'assigned' | 'in_progress' | 'resolved' | 'closed'
+        : undefined;
+      
+      if (validStatus) {
         setTickets(prev => prev.map(t => 
-          t.id === notification.relatedEntityId 
-            ? { ...t, unreadCount: (t.unreadCount || 0) + 1 }
+          t.id === data.ticketId 
+            ? { ...t, status: validStatus }
             : t
         ));
+
+        // Update ticket details if this ticket is currently open
+        if (selectedTicket === data.ticketId && ticketDetails) {
+          setTicketDetails((prev: any) => prev ? { ...prev, status: validStatus } : null);
+          // Reload ticket details to get full updated data
+          loadTicketDetails(data.ticketId);
+        }
       }
     };
 
     socket.on('ticket-message', handleTicketMessage);
     socket.on('new-notification', handleNewNotification);
+    socket.on('ticket-status-updated', handleTicketStatusUpdate);
 
     return () => {
       socket.off('ticket-message', handleTicketMessage);
       socket.off('new-notification', handleNewNotification);
+      socket.off('ticket-status-updated', handleTicketStatusUpdate);
     };
-  }, [socket, connected, selectedTicket]);
+  }, [socket, connected, selectedTicket, ticketDetails]);
 
   const loadTickets = async (pageToLoad: number = 1) => {
     try {

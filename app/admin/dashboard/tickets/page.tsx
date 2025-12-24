@@ -104,12 +104,29 @@ export default function AdminTicketsPage() {
       }
     };
 
+    const handleNewNotification = (notification: any) => {
+      // Reload ticket list to get updated data when a ticket notification is received
+      if (notification.relatedEntityType === 'ticket' && notification.relatedEntityId) {
+        const currentPage = pagination?.page || 1;
+        const currentSelectedTicket = selectedTicket;
+        loadTickets(currentPage).then(() => {
+          // Keep the selected ticket open if it's still in the list
+          if (currentSelectedTicket) {
+            // Reload ticket details to refresh the opened ticket
+            loadTicketDetails(currentSelectedTicket);
+          }
+        });
+      }
+    };
+
     socket.on('new-ticket', handleNewTicket);
     socket.on('ticket-message', handleTicketMessage);
+    socket.on('new-notification', handleNewNotification);
 
     return () => {
       socket.off('new-ticket', handleNewTicket);
       socket.off('ticket-message', handleTicketMessage);
+      socket.off('new-notification', handleNewNotification);
     };
   }, [socket, connected, selectedTicket, pagination]);
 
