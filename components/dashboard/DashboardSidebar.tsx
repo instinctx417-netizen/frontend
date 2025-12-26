@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { authApi } from '@/lib/api';
 
 interface NavItem {
   label: string;
@@ -670,11 +671,29 @@ export default function DashboardSidebar({
 
           {/* Community Link - Available for all users */}
           <div className="p-4" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <a
-              href="https://community.instinctxai.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between px-4 py-3 rounded-md transition-colors dashboard-nav-inactive hover:opacity-90"
+            <button
+              onClick={async () => {
+                try {
+                  // Generate temporary code on click
+                  const response = await authApi.generateCommunityToken();
+                  if (response.success && response.data) {
+                    // Redirect to community with code
+                    window.open(
+                      `https://community.instinctxai.com?authCode=${response.data.code}`,
+                      '_blank',
+                      'noopener,noreferrer'
+                    );
+                  } else {
+                    // Fallback: open without code if generation fails
+                    window.open('https://community.instinctxai.com', '_blank', 'noopener,noreferrer');
+                  }
+                } catch (error) {
+                  // Fallback: open without code if there's an error
+                  console.error('Failed to generate community token:', error);
+                  window.open('https://community.instinctxai.com', '_blank', 'noopener,noreferrer');
+                }
+              }}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-md transition-colors dashboard-nav-inactive hover:opacity-90 cursor-pointer"
             >
               <div className="flex items-center space-x-2">
                 <svg
@@ -711,7 +730,7 @@ export default function DashboardSidebar({
                 <polyline points="15 3 21 3 21 9"></polyline>
                 <line x1="10" y1="14" x2="21" y2="3"></line>
               </svg>
-            </a>
+            </button>
           </div>
 
           {/* User Section */}
@@ -729,7 +748,7 @@ export default function DashboardSidebar({
             </div>
             <button
               onClick={logout}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-colors"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer"
               style={{ color: 'var(--color-error-dark)', backgroundColor: 'var(--color-error-lightest)' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-error-lighter)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-error-lightest)'}

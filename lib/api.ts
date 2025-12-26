@@ -168,6 +168,25 @@ export const authApi = {
       method: 'GET',
     });
   },
+
+  /**
+   * Generate temporary token for community app access
+   */
+  generateCommunityToken: async (): Promise<ApiResponse<{ code: string; expiresIn: number }>> => {
+    return apiRequest<{ code: string; expiresIn: number }>('/auth/generate-community-token', {
+      method: 'POST',
+    });
+  },
+
+  /**
+   * Exchange temporary code for JWT token
+   */
+  exchangeCommunityToken: async (code: string): Promise<ApiResponse<AuthResponse>> => {
+    return apiRequest<AuthResponse>('/auth/exchange-community-token', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
 };
 
 /**
